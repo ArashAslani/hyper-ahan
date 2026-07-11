@@ -1,5 +1,6 @@
 export const routes = {
   home: "/",
+  categories: "/categories",
   products: {
     list: "/products",
     detail: (id: string | number) => `/products/${id}`,
@@ -12,6 +13,11 @@ export const routes = {
     register: "/register",
   },
   profile: "/profile",
+  orders: {
+    list: "/orders",
+    detail: (id: string | number) => `/orders/${id}`,
+  },
+  search: "/search",
   articles: {
     list: "/articles",
     detail: (id: string | number) => `/articles/${id}`,
@@ -22,6 +28,7 @@ export const routes = {
   weightCalc: (slug: string) => `/weight-calc/${slug}`,
   phone: {
     office: "tel:03191690433",
-    mobileFooter: "tel:02112345678",
+    call: "tel:03191690433",
+    mobileFooter: "tel:03191690433",
   },
 } as const;

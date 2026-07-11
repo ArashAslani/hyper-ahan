@@ -3,56 +3,60 @@
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faPhoneAlt,
   faSearch,
-  faSignInAlt,
-  faHeadset,
+  faShoppingCart,
 } from "@fortawesome/free-solid-svg-icons";
 import { routes } from "@/lib/routes";
 import { siteConfig } from "@/config/site";
+import { useCart } from "@/providers/CartProvider";
 
-type TopBarProps = {
-  onConsultationClick: () => void;
-};
+export function TopBar() {
+  const { getTotalItems } = useCart();
+  const count = getTotalItems();
 
-export function TopBar({ onConsultationClick }: TopBarProps) {
   return (
-    <div className="flex items-center justify-between gap-3 py-3">
-      <Link
-        href={routes.home}
-        className="text-2xl font-bold text-blue-600 transition hover:text-blue-800"
-      >
-        {siteConfig.name}
-      </Link>
-
-      <div className="mx-4 hidden max-w-md flex-1 md:flex">
-        <input
-          type="text"
-          placeholder="جستجوی محصول، برند یا دسته‌بندی..."
-          className="w-full rounded-r-lg border border-gray-300 px-4 py-2 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="button"
-          className="rounded-l-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          <FontAwesomeIcon icon={faSearch} />
-        </button>
-      </div>
-
-      <div className="hidden items-center gap-2 md:flex">
+    <header className="sticky top-0 z-50 border-b border-border bg-surface">
+      <div className="mx-auto flex h-[var(--topbar-h)] max-w-xl items-center justify-between gap-2 px-3">
         <Link
-          href={routes.auth.login}
-          className="rounded-lg border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+          href={routes.home}
+          className="text-lg font-bold text-primary active:scale-95"
         >
-          <FontAwesomeIcon icon={faSignInAlt} className="ml-1" /> ورود / ثبت‌نام
+          {siteConfig.name}
         </Link>
-        <button
-          type="button"
-          onClick={onConsultationClick}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          <FontAwesomeIcon icon={faHeadset} className="ml-1" /> درخواست مشاوره
-        </button>
+
+        <div className="flex items-center gap-1">
+          <a
+            href={routes.phone.call}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-accent"
+            aria-label="تماس"
+          >
+            <FontAwesomeIcon icon={faPhoneAlt} />
+          </a>
+          <Link
+            href={routes.search}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-text"
+            aria-label="جستجو"
+          >
+            <FontAwesomeIcon icon={faSearch} />
+          </Link>
+          <Link
+            href={routes.cart}
+            className="relative flex h-11 w-11 items-center justify-center rounded-full text-text"
+            aria-label="سبد خرید"
+          >
+            <FontAwesomeIcon
+              icon={faShoppingCart}
+              className={count > 0 ? "animate-cart-bounce" : undefined}
+            />
+            {count > 0 ? (
+              <span className="absolute top-1 left-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
+                {count}
+              </span>
+            ) : null}
+          </Link>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }

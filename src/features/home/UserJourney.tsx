@@ -18,7 +18,7 @@ export function UserJourney({ steps }: UserJourneyProps) {
               className="w-64 flex-shrink-0 rounded-xl bg-white p-5 text-center shadow-md transition-shadow hover:shadow-lg md:w-auto"
             >
               <div className="mb-3 text-5xl">{step.icon}</div>
-              <div className="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
+              <div className="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-accent font-bold text-white">
                 {step.id}
               </div>
               <h3 className="mb-2 text-lg font-bold">{step.title}</h3>

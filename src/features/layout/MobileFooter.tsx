@@ -39,8 +39,8 @@ export function MobileFooter() {
       <div className="flex items-center justify-around py-2">
         {items.map((item) => {
           const className = item.elevated
-            ? "-mt-6 flex h-12 w-12 flex-col items-center justify-center rounded-full bg-blue-600 text-white shadow-lg"
-            : "flex flex-col items-center text-gray-600 hover:text-blue-600";
+            ? "-mt-6 flex h-12 w-12 flex-col items-center justify-center rounded-full bg-accent text-white shadow-lg"
+            : "flex flex-col items-center text-gray-600 hover:text-accent";
 
           if (item.external) {
             return (

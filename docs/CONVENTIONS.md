@@ -43,12 +43,16 @@
 
 ## ناوبری
 
-- آیتم‌های منو از `src/config/nav.config.ts` — یک منبع برای دسکتاپ و موبایل
+- Bottom Nav و لینک‌های فوتر از `src/config/nav.config.ts`
+- Shell: `TopBar` (۵۶px) + `BottomNav` — نه هدر دو‌ردیفه قدیمی
 
-## استایل
+## استایل و Design Tokens
 
-- Tailwind utility-first
-- الگوهای تکراری دکمه/ورودی/مودال → `shared/ui`
+- توکن‌ها در `src/app/globals.css` (`--color-primary`, `--color-accent`, …)
+- فونت: Vazirmatn (۴۰۰/۵۰۰/۷۰۰)
+- کلاس‌های رنگ: `bg-primary`, `text-accent`, `bg-surface`, `text-text-muted` — از `blue-*` استفاده نکنید
+- کامپوننت‌های UI در `src/shared/ui` (Button, ProductCard, BottomSheet, …)
+- touch target حداقل ۴۴px؛ mobile-first با `max-w-xl` centered
 - بدون `console.log` دیباگ در کد اصلی
 
 ## چک‌لیست قبل از PR
@@ -58,3 +62,4 @@
 - [ ] mock مستقیم در UI نیست؟
 - [ ] `'use client'` فقط در صورت نیاز؟
 - [ ] کلید storage از `storage` است؟
+- [ ] رنگ‌ها از توکن‌هاست (نه blue خام)؟

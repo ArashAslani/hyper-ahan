@@ -13,7 +13,7 @@ export function ArticleCards({ articles }: ArticleCardsProps) {
         <h2 className="text-2xl font-bold md:text-3xl">مقالات آموزشی</h2>
         <Link
           href={routes.articles.list}
-          className="font-semibold text-blue-600 transition hover:text-blue-800"
+          className="font-semibold text-accent transition hover:text-accent"
         >
           مشاهده همه مقالات ←
         </Link>
@@ -37,7 +37,7 @@ export function ArticleCards({ articles }: ArticleCardsProps) {
                 {article.title}
               </h3>
               <p className="text-gray-600">{article.summary}</p>
-              <span className="mt-4 inline-block font-medium text-blue-600 hover:text-blue-800">
+              <span className="mt-4 inline-block font-medium text-accent hover:text-accent">
                 مطالعه بیشتر →
               </span>
             </div>

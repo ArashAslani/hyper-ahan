@@ -1,14 +1,21 @@
+export type ProductUnit = "Kg" | "Ton" | "Piece";
+
 export type Product = {
   id: number;
   name: string;
   size: string;
   price: string;
   brand: string;
+  factoryName: string;
   image: string;
+  weight?: string;
+  unit: ProductUnit;
+  stock: number;
   grade?: string;
   loadingPlace?: string;
   type?: string;
   description?: string;
+  discountPercent?: number;
 };
 
 export type CategoryNode = {
@@ -16,6 +23,7 @@ export type CategoryNode = {
   name: string;
   slug: string;
   children: CategoryNode[];
+  icon?: string;
 };
 
 export type WeightCalcItem = {
@@ -38,6 +46,7 @@ export type HomeCategory = {
   id: number;
   name: string;
   icon: string;
+  slug: string;
   count: number;
 };
 
@@ -97,10 +106,18 @@ export type ProfileUser = {
   memberSince: string;
 };
 
+export type OrderStatus =
+  | "Submitted"
+  | "InReview"
+  | "Confirmed"
+  | "Completed"
+  | "Cancelled";
+
 export type ProfileOrder = {
   id: number;
+  orderNumber: string;
   date: string;
   total: string;
-  status: string;
+  status: OrderStatus;
   items: number;
 };

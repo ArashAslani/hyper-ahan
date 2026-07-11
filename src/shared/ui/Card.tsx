@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
 
-type CardProps = {
+export function Card({
+  children,
+  className = "",
+}: {
   children: ReactNode;
   className?: string;
-};
-
-export function Card({ children, className = "" }: CardProps) {
+}) {
   return (
     <div
-      className={`rounded-xl bg-white p-6 shadow-md transition-shadow hover:shadow-lg ${className}`}
+      className={`rounded-[var(--radius-lg)] bg-surface p-4 shadow-[var(--shadow-soft)] ${className}`}
     >
       {children}
     </div>

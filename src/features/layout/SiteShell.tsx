@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
-import { Header } from "@/features/layout/Header";
-import { Footer } from "@/features/layout/Footer";
-import { MobileFooter } from "@/features/layout/MobileFooter";
+import { TopBar } from "@/features/layout/TopBar";
+import { BottomNav } from "@/features/layout/BottomNav";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-gray-100">
-      <Header />
-      <main className="flex-grow pb-20 md:pb-0">{children}</main>
-      <Footer />
-      <MobileFooter />
+    <div className="mx-auto flex min-h-screen max-w-xl flex-col bg-bg">
+      <TopBar />
+      <main className="flex-1 pb-[calc(var(--bottom-nav-h)+0.5rem)]">
+        {children}
+      </main>
+      <BottomNav />
     </div>
   );
 }

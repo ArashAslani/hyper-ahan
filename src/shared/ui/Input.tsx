@@ -1,21 +1,28 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
 
 const fieldClass =
-  "w-full rounded-lg border border-gray-300 px-4 py-2 text-right focus:outline-none focus:ring-2 focus:ring-blue-500";
+  "peer w-full min-h-[var(--touch-min)] rounded-[var(--radius-md)] border border-border bg-surface px-4 pt-5 pb-2 text-base text-text placeholder-transparent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30";
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  label?: string;
+  label: string;
 };
 
 export function Input({ label, id, className = "", ...props }: InputProps) {
+  const inputId = id ?? props.name;
   return (
-    <div>
-      {label ? (
-        <label htmlFor={id} className="mb-1 block text-gray-700">
-          {label}
-        </label>
-      ) : null}
-      <input id={id} className={`${fieldClass} ${className}`} {...props} />
+    <div className="relative">
+      <input
+        id={inputId}
+        placeholder={label}
+        className={`${fieldClass} ${className}`}
+        {...props}
+      />
+      <label
+        htmlFor={inputId}
+        className="pointer-events-none absolute top-2 right-4 text-xs text-text-muted transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-accent"
+      >
+        {label}
+      </label>
     </div>
   );
 }
@@ -24,15 +31,36 @@ type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: string;
 };
 
-export function Textarea({ label, id, className = "", ...props }: TextareaProps) {
+export function Textarea({
+  label,
+  id,
+  className = "",
+  ...props
+}: TextareaProps) {
+  const inputId = id ?? props.name;
+  if (!label) {
+    return (
+      <textarea
+        id={inputId}
+        className={`w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3 text-base text-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 ${className}`}
+        {...props}
+      />
+    );
+  }
   return (
-    <div>
-      {label ? (
-        <label htmlFor={id} className="mb-1 block text-gray-700">
-          {label}
-        </label>
-      ) : null}
-      <textarea id={id} className={`${fieldClass} ${className}`} {...props} />
+    <div className="relative">
+      <textarea
+        id={inputId}
+        placeholder={label}
+        className={`peer w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 pt-6 pb-2 text-base text-text placeholder-transparent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 ${className}`}
+        {...props}
+      />
+      <label
+        htmlFor={inputId}
+        className="pointer-events-none absolute top-2 right-4 text-xs text-text-muted transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-accent"
+      >
+        {label}
+      </label>
     </div>
   );
 }

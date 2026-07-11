@@ -51,7 +51,7 @@ function RecursiveCategoryItem({
         <Link
           href={routes.products.category(item.slug)}
           onClick={onClose}
-          className="flex w-[60%] items-center gap-2 py-3 text-gray-800 hover:text-blue-600"
+          className="flex w-[60%] items-center gap-2 py-3 text-gray-800 hover:text-accent"
         >
           <FontAwesomeIcon
             icon={hasChildren ? faFolder : faFile}
@@ -152,7 +152,7 @@ export function MobileMenu({
             />
             <button
               type="button"
-              className="rounded-l-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+              className="rounded-l-lg bg-accent px-4 py-2 text-white hover:bg-highlight"
             >
               <FontAwesomeIcon icon={faSearch} />
             </button>
@@ -216,7 +216,7 @@ export function MobileMenu({
                     key={item.slug}
                     href={routes.weightCalc(item.slug)}
                     onClick={onClose}
-                    className="block py-2 text-gray-600 hover:text-blue-600"
+                    className="block py-2 text-gray-600 hover:text-accent"
                   >
                     {item.name}
                   </Link>
@@ -254,7 +254,7 @@ export function MobileMenu({
                     key={item.href}
                     href={item.href}
                     onClick={onClose}
-                    className="block py-2 text-gray-600 hover:text-blue-600"
+                    className="block py-2 text-gray-600 hover:text-accent"
                   >
                     {item.label}
                   </Link>

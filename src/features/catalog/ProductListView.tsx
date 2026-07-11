@@ -1,5 +1,16 @@
-import Link from "next/link";
-import { routes } from "@/lib/routes";
+"use client";
+
+import { useMemo, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSliders } from "@fortawesome/free-solid-svg-icons";
+import { ProductCard } from "@/shared/ui/ProductCard";
+import { SearchBar } from "@/shared/ui/SearchBar";
+import { BottomSheet } from "@/shared/ui/BottomSheet";
+import { Fab } from "@/shared/ui/Fab";
+import { Button } from "@/shared/ui/Button";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { useCart } from "@/providers/CartProvider";
+import { useToast } from "@/shared/ui/Toast";
 import type { Product } from "@/types";
 
 type ProductListViewProps = {
@@ -7,40 +18,95 @@ type ProductListViewProps = {
 };
 
 export function ProductListView({ products }: ProductListViewProps) {
+  const [query, setQuery] = useState("");
+  const [factory, setFactory] = useState<string>("all");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const { addToCart } = useCart();
+  const { showToast } = useToast();
+
+  const factories = useMemo(
+    () => Array.from(new Set(products.map((p) => p.factoryName))),
+    [products],
+  );
+
+  const filtered = products.filter((p) => {
+    const q = query.trim();
+    const matchesQuery =
+      !q ||
+      p.name.includes(q) ||
+      p.factoryName.includes(q) ||
+      p.size.includes(q);
+    const matchesFactory = factory === "all" || p.factoryName === factory;
+    return matchesQuery && matchesFactory;
+  });
+
+  const handleAdd = (product: Product) => {
+    addToCart(product, 1);
+    showToast(`${product.name} به سبد اضافه شد`, "success");
+  };
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="mb-8 text-center text-2xl font-bold md:text-3xl">
-        محصولات آهنی و فلزی
-      </h1>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="overflow-hidden rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={product.image}
-              alt={product.name}
-              className="h-48 w-full object-cover"
+    <div className="px-4 py-4">
+      <h1 className="mb-3 text-xl font-bold text-text">محصولات</h1>
+      <SearchBar sticky value={query} onChange={setQuery} />
+
+      {filtered.length === 0 ? (
+        <EmptyState
+          title="محصولی یافت نشد"
+          description="عبارت جستجو یا فیلتر را تغییر دهید."
+          icon="🔍"
+        />
+      ) : (
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {filtered.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={handleAdd}
             />
-            <div className="p-4">
-              <h2 className="text-xl font-bold text-gray-800">{product.name}</h2>
-              <p className="mt-1 text-gray-600">سایز: {product.size}</p>
-              <p className="text-gray-600">برند: {product.brand}</p>
-              <p className="mt-2 text-lg font-bold text-blue-600">
-                {product.price} تومان
-              </p>
-              <Link
-                href={routes.products.detail(product.id)}
-                className="mt-4 inline-block w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white transition hover:bg-blue-700"
-              >
-                مشاهده جزئیات
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      <Fab onClick={() => setSheetOpen(true)} aria-label="فیلتر">
+        <FontAwesomeIcon icon={faSliders} />
+      </Fab>
+
+      <BottomSheet
+        isOpen={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title="فیلتر محصولات"
+      >
+        <p className="mb-2 text-sm font-medium text-text">کارخانه</p>
+        <div className="mb-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setFactory("all")}
+            className={`min-h-11 rounded-full px-3 text-sm ${
+              factory === "all"
+                ? "bg-accent text-white"
+                : "bg-bg text-text-muted"
+            }`}
+          >
+            همه
+          </button>
+          {factories.map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFactory(f)}
+              className={`min-h-11 rounded-full px-3 text-sm ${
+                factory === f ? "bg-accent text-white" : "bg-bg text-text-muted"
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+        <Button fullWidth onClick={() => setSheetOpen(false)}>
+          اعمال فیلتر
+        </Button>
+      </BottomSheet>
     </div>
   );
 }

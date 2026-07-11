@@ -9,6 +9,7 @@ alwaysApply: true
 1. **Routes** — use only `src/lib/routes.ts`. Never hardcode path strings in features/UI.
 2. **Data** — UI/features call `src/services/*` only. Never import from `src/mocks/*` in pages or components.
 3. **Storage** — use `src/lib/storage.ts` / `STORAGE_KEYS` only.
-4. **Nav** — menu items from `src/config/nav.config.ts`.
-5. **Client** — add `'use client'` only when state/events/browser APIs are required.
-6. Follow `docs/CONVENTIONS.md`.
+4. **Nav** — Bottom Nav items from `src/config/nav.config.ts`; shell is TopBar + BottomNav.
+5. **Design tokens** — colors from CSS variables / Tailwind tokens (`primary`, `accent`, …). No raw `blue-*`.
+6. **Client** — add `'use client'` only when state/events/browser APIs are required.
+7. Follow `docs/CONVENTIONS.md`.

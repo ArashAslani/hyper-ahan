@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { routes } from "@/lib/routes";
 import type { HomeCategory } from "@/types";
 
 type CategoryGridProps = {
@@ -6,20 +8,25 @@ type CategoryGridProps = {
 
 export function CategoryGrid({ categories }: CategoryGridProps) {
   return (
-    <section className="container mx-auto px-4 py-12">
-      <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">
-        دسته‌بندی محصولات
-      </h2>
-      <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-        {categories.map((cat) => (
-          <div
+    <section className="px-4 py-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-bold text-text">دسته‌بندی‌ها</h2>
+        <Link href={routes.categories} className="text-sm font-medium text-accent">
+          همه
+        </Link>
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {categories.slice(0, 8).map((cat) => (
+          <Link
             key={cat.id}
-            className="cursor-pointer rounded-xl bg-white p-6 text-center shadow-md transition-shadow hover:shadow-lg"
+            href={routes.products.category(cat.slug)}
+            className="flex min-h-[88px] flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] bg-surface p-2 text-center shadow-[var(--shadow-soft)] active:scale-95"
           >
-            <div className="mb-3 text-5xl">{cat.icon}</div>
-            <h3 className="text-lg font-semibold text-gray-800">{cat.name}</h3>
-            <p className="mt-1 text-sm text-gray-500">{cat.count} محصول</p>
-          </div>
+            <span className="text-2xl" aria-hidden>
+              {cat.icon}
+            </span>
+            <span className="text-xs font-medium text-text">{cat.name}</span>
+          </Link>
         ))}
       </div>
     </section>

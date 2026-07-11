@@ -19,7 +19,7 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
           <div key={item.slug} className="break-inside-avoid">
             <Link
               href={routes.products.category(item.slug)}
-              className="mb-2 flex items-center gap-2 border-b pb-1 font-semibold text-gray-800 hover:text-blue-600"
+              className="mb-2 flex items-center gap-2 border-b pb-1 font-semibold text-gray-800 hover:text-accent"
             >
               <FontAwesomeIcon
                 icon={hasChildren ? faFolder : faFile}
@@ -33,7 +33,7 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
                   <li key={child.slug} className="text-sm">
                     <Link
                       href={routes.products.category(child.slug)}
-                      className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                      className="flex items-center gap-2 text-gray-600 hover:text-accent"
                     >
                       <FontAwesomeIcon
                         icon={child.children?.length ? faFolder : faFile}
@@ -47,7 +47,7 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
                           <li key={grandChild.slug}>
                             <Link
                               href={routes.products.category(grandChild.slug)}
-                              className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600"
+                              className="flex items-center gap-2 text-sm text-gray-500 hover:text-accent"
                             >
                               <FontAwesomeIcon
                                 icon={faFile}
@@ -65,7 +65,7 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
             ) : (
               <Link
                 href={routes.products.category(item.slug)}
-                className="mt-1 block text-gray-600 hover:text-blue-600"
+                className="mt-1 block text-gray-600 hover:text-accent"
               >
                 مشاهده محصولات
               </Link>
@@ -94,7 +94,7 @@ export function PriceDropdown({ categories }: PriceDropdownProps) {
     <div className="group relative">
       <button
         type="button"
-        className="py-2 font-medium text-gray-700 hover:text-blue-600"
+        className="py-2 font-medium text-gray-700 hover:text-accent"
       >
         قیمت روز محصولات
       </button>
@@ -108,7 +108,7 @@ export function PriceDropdown({ categories }: PriceDropdownProps) {
                   onMouseEnter={() => setActiveCategory(cat)}
                   className={`cursor-pointer px-4 py-2 transition ${
                     activeCategory.id === cat.id
-                      ? "bg-blue-100 font-semibold text-blue-700"
+                      ? "bg-accent/10 font-semibold text-accent"
                       : "hover:bg-gray-100"
                   }`}
                 >

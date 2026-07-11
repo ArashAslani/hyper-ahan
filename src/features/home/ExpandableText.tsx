@@ -28,7 +28,7 @@ export function ExpandableText({
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="font-semibold text-blue-600 transition hover:text-blue-800"
+            className="font-semibold text-accent transition hover:text-accent"
           >
             {isExpanded ? "بستن ▲" : "بیشتر ▼"}
           </button>

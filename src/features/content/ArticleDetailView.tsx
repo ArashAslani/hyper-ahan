@@ -32,7 +32,7 @@ export function ArticleDetailView({ article }: ArticleDetailViewProps) {
     <div className="container mx-auto px-4 py-12">
       <Link
         href={routes.articles.list}
-        className="mb-6 inline-block text-blue-600"
+        className="mb-6 inline-block text-accent"
       >
         ← بازگشت به لیست مقالات
       </Link>

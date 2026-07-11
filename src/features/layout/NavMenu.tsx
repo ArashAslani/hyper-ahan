@@ -27,7 +27,7 @@ export function NavMenu({ categories, weightCalcItems }: NavMenuProps) {
           <PriceDropdown categories={categories} />
           <Link
             href={routes.articles.list}
-            className="py-2 font-medium text-gray-700 hover:text-blue-600"
+            className="py-2 font-medium text-gray-700 hover:text-accent"
           >
             <FontAwesomeIcon icon={faNewspaper} className="ml-1" /> مقالات
           </Link>
@@ -35,7 +35,7 @@ export function NavMenu({ categories, weightCalcItems }: NavMenuProps) {
           <div className="group relative">
             <button
               type="button"
-              className="py-2 font-medium text-gray-700 hover:text-blue-600"
+              className="py-2 font-medium text-gray-700 hover:text-accent"
             >
               <FontAwesomeIcon icon={faAddressCard} className="ml-1" /> درباره
               ما
@@ -59,7 +59,7 @@ export function NavMenu({ categories, weightCalcItems }: NavMenuProps) {
         <div>
           <a
             href={routes.phone.office}
-            className="py-2 font-medium text-gray-700 hover:text-blue-600"
+            className="py-2 font-medium text-gray-700 hover:text-accent"
           >
             <FontAwesomeIcon icon={faPhoneAlt} className="ml-1" /> تماس به دفتر
             : {siteConfig.phoneDisplay}

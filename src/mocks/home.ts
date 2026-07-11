@@ -13,33 +13,33 @@ import type {
 export const bannersMock: Banner[] = [
   {
     id: 1,
-    title: "فروش ویژه مقاطع فولادی",
-    subtitle: "با بهترین قیمت بازار",
-    image: "https://placehold.co/1200x400/2563eb/white?text=بنر+آهن+۱",
+    title: "قیمت روز آهن‌آلات",
+    subtitle: "سفارش سریع، تماس کارشناس",
+    image: "https://placehold.co/1200x400/1A1A2E/white?text=هایپر+آهن",
   },
   {
     id: 2,
-    title: "تیرآهن و نبشی با آنالیز تضمینی",
-    subtitle: "ارسال به سراسر کشور",
-    image: "https://placehold.co/1200x400/16a34a/white?text=بنر+آهن+۲",
+    title: "میلگرد و تیرآهن",
+    subtitle: "از کارخانه تا محل پروژه",
+    image: "https://placehold.co/1200x400/2D2D2D/white?text=مقاطع+فولادی",
   },
   {
     id: 3,
-    title: "مشاوره رایگان خرید آهن‌آلات",
-    subtitle: "تماس بگیرید: ۰۳۱-۹۱۶۹۰۴۳۳",
-    image: "https://placehold.co/1200x400/dc2626/white?text=بنر+آهن+۳",
+    title: "مشاوره رایگان خرید",
+    subtitle: "تماس: ۰۳۱-۹۱۶۹۰۴۳۳",
+    image: "https://placehold.co/1200x400/E67E22/white?text=مشاوره",
   },
 ];
 
 export const homeCategoriesMock: HomeCategory[] = [
-  { id: 1, name: "تیرآهن", icon: "🏗️", count: 45 },
-  { id: 2, name: "نبشی", icon: "📐", count: 32 },
-  { id: 3, name: "ورق سیاه", icon: "📄", count: 28 },
-  { id: 4, name: "میلگرد", icon: "⚙️", count: 56 },
-  { id: 5, name: "لوله", icon: "🔧", count: 41 },
-  { id: 6, name: "پروفیل", icon: "📦", count: 37 },
-  { id: 7, name: "سپری", icon: "🛡️", count: 19 },
-  { id: 8, name: "قوطی", icon: "🧰", count: 24 },
+  { id: 1, name: "تیرآهن", icon: "🏗️", slug: "beam", count: 45 },
+  { id: 2, name: "نبشی", icon: "📐", slug: "angle", count: 32 },
+  { id: 3, name: "ورق سیاه", icon: "📄", slug: "sheet", count: 28 },
+  { id: 4, name: "میلگرد", icon: "⚙️", slug: "rebar", count: 56 },
+  { id: 5, name: "لوله", icon: "🔧", slug: "pipe", count: 41 },
+  { id: 6, name: "پروفیل", icon: "📦", slug: "profile", count: 37 },
+  { id: 7, name: "سپری", icon: "🛡️", slug: "tee", count: 19 },
+  { id: 8, name: "قوطی", icon: "🧰", slug: "box", count: 24 },
 ];
 
 export const pricesMock: PriceRow[] = [
@@ -287,23 +287,26 @@ export const profileUserMock: ProfileUser = {
 export const profileOrdersMock: ProfileOrder[] = [
   {
     id: 1001,
+    orderNumber: "HA-20260710-1001",
     date: "۱۴۰۳/۰۱/۱۵",
     total: "۲۳,۵۰۰,۰۰۰",
-    status: "تحویل شده",
+    status: "Completed",
     items: 2,
   },
   {
     id: 1002,
+    orderNumber: "HA-20260710-1002",
     date: "۱۴۰۳/۰۱/۲۰",
     total: "۴۲,۸۰۰,۰۰۰",
-    status: "در حال ارسال",
+    status: "Confirmed",
     items: 3,
   },
   {
     id: 1003,
+    orderNumber: "HA-20260710-1003",
     date: "۱۴۰۳/۰۲/۰۵",
     total: "۱۸,۲۰۰,۰۰۰",
-    status: "تأیید شده",
+    status: "Submitted",
     items: 1,
   },
 ];

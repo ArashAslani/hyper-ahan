@@ -15,7 +15,7 @@ export function WeightCalcDropdown({ items }: WeightCalcDropdownProps) {
     <div className="group relative">
       <button
         type="button"
-        className="py-2 font-medium text-gray-700 hover:text-blue-600"
+        className="py-2 font-medium text-gray-700 hover:text-accent"
       >
         <FontAwesomeIcon icon={faCalculator} className="ml-1" /> جدول و محاسبه
         وزن آهن‌آلات

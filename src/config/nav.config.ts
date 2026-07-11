@@ -10,18 +10,18 @@ export const aboutNavItems: NavLinkItem[] = [
   { label: "تماس با ما", href: routes.contact },
 ];
 
-export const mobileFooterItems = [
+export const bottomNavItems = [
   { label: "خانه", href: routes.home, icon: "home" as const },
-  { label: "اپلیکیشن", href: routes.app, icon: "app" as const },
-  { label: "تماس", href: routes.phone.mobileFooter, icon: "phone" as const, external: true },
-  { label: "درباره ما", href: routes.about, icon: "about" as const },
-  { label: "سبد خرید", href: routes.cart, icon: "cart" as const },
+  { label: "دسته‌ها", href: routes.categories, icon: "categories" as const },
+  { label: "سبد", href: routes.cart, icon: "cart" as const },
+  { label: "سفارش‌ها", href: routes.orders.list, icon: "orders" as const },
+  { label: "پروفایل", href: routes.profile, icon: "profile" as const },
 ] as const;
 
 export const footerQuickLinks: NavLinkItem[] = [
   { label: "درباره ما", href: routes.about },
   { label: "تماس با ما", href: routes.contact },
-  { label: "مقالات", href: routes.articles.list },
+  { label: "محصولات", href: routes.products.list },
 ];
 
 export const footerProductLinks: NavLinkItem[] = [

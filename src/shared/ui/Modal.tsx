@@ -16,23 +16,28 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/50 p-4"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        className="relative w-full max-w-md rounded-[var(--radius-lg)] bg-surface p-5 shadow-[var(--shadow-card)]"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute left-4 top-4 text-gray-500 hover:text-gray-700"
+          className="absolute top-3 left-3 flex h-11 w-11 items-center justify-center text-text-muted"
           aria-label="بستن"
         >
           <FontAwesomeIcon icon={faTimes} size="lg" />
         </button>
         {title ? (
-          <h2 className="mb-4 text-center text-xl font-bold">{title}</h2>
+          <h2 className="mb-4 text-center text-lg font-bold text-text">
+            {title}
+          </h2>
         ) : null}
         {children}
       </div>

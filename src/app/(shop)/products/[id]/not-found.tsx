@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1 className="text-2xl font-bold text-red-600">محصول یافت نشد</h1>
       <Link
         href={routes.products.list}
-        className="mt-4 inline-block text-blue-600"
+        className="mt-4 inline-block text-accent"
       >
         بازگشت به لیست محصولات
       </Link>

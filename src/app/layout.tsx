@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Vazirmatn } from "next/font/google";
 import { AppProviders } from "@/providers/AppProviders";
 import { SiteShell } from "@/features/layout/SiteShell";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const vazirmatn = Vazirmatn({
+  variable: "--font-vazirmatn",
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" className={`${geistSans.variable} h-full`}>
-      <body className="min-h-full antialiased">
+    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} h-full`}>
+      <body className={`${vazirmatn.className} min-h-full antialiased`}>
         <AppProviders>
           <SiteShell>{children}</SiteShell>
         </AppProviders>

@@ -24,7 +24,7 @@ export function TeamSection({ members }: TeamSectionProps) {
             />
             <div className="p-4">
               <h3 className="text-xl font-bold text-gray-800">{member.name}</h3>
-              <p className="mt-1 text-blue-600">{member.role}</p>
+              <p className="mt-1 text-accent">{member.role}</p>
             </div>
           </div>
         ))}

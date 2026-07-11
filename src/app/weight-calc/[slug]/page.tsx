@@ -14,7 +14,7 @@ export default async function WeightCalcPlaceholderPage({ params }: PageProps) {
       <p className="mb-2 text-gray-600">
         صفحه محاسبه وزن برای «{slug}» در فاز بعد پیاده‌سازی می‌شود.
       </p>
-      <Link href={routes.home} className="text-blue-600">
+      <Link href={routes.home} className="text-accent">
         بازگشت به خانه
       </Link>
     </div>

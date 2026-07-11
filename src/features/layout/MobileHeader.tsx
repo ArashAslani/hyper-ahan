@@ -30,12 +30,12 @@ export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
       >
         <FontAwesomeIcon icon={faBars} />
       </button>
-      <Link href={routes.home} className="text-xl font-bold text-blue-600">
+      <Link href={routes.home} className="text-xl font-bold text-accent">
         {siteConfig.name}
       </Link>
       <Link
         href={isLoggedIn ? routes.profile : routes.auth.login}
-        className="text-xl text-blue-600"
+        className="text-xl text-accent"
       >
         <FontAwesomeIcon icon={isLoggedIn ? faUserCircle : faUser} />
       </Link>

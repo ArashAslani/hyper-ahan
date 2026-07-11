@@ -32,7 +32,7 @@ export function ArticleListView({ articles }: ArticleListViewProps) {
               <p className="mb-4 text-gray-600">{article.summary}</p>
               <Link
                 href={routes.articles.detail(article.id)}
-                className="inline-block font-medium text-blue-600 hover:text-blue-800"
+                className="inline-block font-medium text-accent hover:text-accent"
               >
                 مطالعه بیشتر →
               </Link>
