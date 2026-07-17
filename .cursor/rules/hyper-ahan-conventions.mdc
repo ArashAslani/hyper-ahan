@@ -1,0 +1,16 @@
+---
+description: HyperAhan Next.js frontend conventions — routes, services, DRY
+globs: hyper-ahan/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# HyperAhan frontend rules
+
+When editing `hyper-ahan/`:
+
+1. **Routes** — use only `src/lib/routes.ts`. Never hardcode path strings in features/UI.
+2. **Data** — UI/features call `src/services/*` only. Never import from `src/mocks/*` in pages or components.
+3. **Storage** — use `src/lib/storage.ts` / `STORAGE_KEYS` only.
+4. **Nav** — menu items from `src/config/nav.config.ts`.
+5. **Client** — add `'use client'` only when state/events/browser APIs are required.
+6. Follow `hyper-ahan/docs/CONVENTIONS.md`.

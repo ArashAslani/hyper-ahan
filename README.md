@@ -1,6 +1,6 @@
 # هایپر آهن — فرانت‌اند (Next.js)
 
-فروشگاه آنلاین آهن‌آلات — مهاجرت‌شده از Vite/React به **Next.js App Router + TypeScript**.
+فروشگاه آنلاین آهن‌آلات — **Next.js App Router + TypeScript**، موبایل‌فرست.
 
 ## اجرا
 
@@ -11,23 +11,32 @@ npm run dev
 
 باز کردن: [http://localhost:3000](http://localhost:3000)
 
+ریپو: [github.com/ArashAslani/hyper-ahan](https://github.com/ArashAslani/hyper-ahan)
+
 ## ساختار
 
 ```
 src/
   app/           # مسیرها و layout
-  features/      # واحدهای کسب‌وکار (layout, home, catalog, cart, auth, content)
-  shared/ui/     # کامپوننت‌های عمومی
+  features/      # واحدهای کسب‌وکار
+  shared/ui/     # Design System
   services/      # قرارداد داده (فعلاً mock)
   mocks/         # داده نمونه
   lib/           # routes, storage, format, api-client
   config/        # site + nav
-  providers/     # Cart و ...
+  providers/     # Cart, Toast
   types/         # تایپ‌های دامنه
 ```
 
-قوانین توسعه: [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md)
+## مستندات
+
+| فایل | توضیح |
+|------|--------|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | معماری، ریپو، سناریوها، قابلیت‌های اپ |
+| [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | قوانین توسعه |
+| [`docs/mvp-ahanalat.md`](docs/mvp-ahanalat.md) | محدوده MVP محصول |
+| [`docs/frontend-integration.md`](docs/frontend-integration.md) | قرارداد اتصال به بک‌اند |
 
 ## فاز بعد
 
-اتصال به API طبق [`docs/frontend-integration.md`](docs/frontend-integration.md) — فقط لایه `services/*` عوض می‌شود.
+اتصال به API — فقط لایه `services/*` عوض می‌شود.
