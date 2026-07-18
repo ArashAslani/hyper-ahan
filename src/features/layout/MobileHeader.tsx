@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faUser, faUserCircle } from "@fortawesome/free-solid-svg-icons";
@@ -13,12 +13,9 @@ type MobileHeaderProps = {
 };
 
 export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const user = getStorageItem<{ name: string }>(STORAGE_KEYS.user);
-    setIsLoggedIn(!!user);
-  }, []);
+  const [isLoggedIn] = useState(
+    () => !!getStorageItem<{ name: string }>(STORAGE_KEYS.user),
+  );
 
   return (
     <div className="flex items-center justify-between bg-white px-4 py-3 shadow-md md:hidden">

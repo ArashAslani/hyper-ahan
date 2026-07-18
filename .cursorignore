@@ -1,0 +1,13 @@
+﻿# Reduce Cursor / agent index noise (does not affect Next.js builds)
+
+node_modules/
+.next/
+out/
+build/
+coverage/
+package-lock.json
+*.tsbuildinfo
+next-env.d.ts
+
+# Large or low-signal assets
+public/icons/

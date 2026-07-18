@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -83,12 +83,10 @@ type PriceDropdownProps = {
 
 export function PriceDropdown({ categories }: PriceDropdownProps) {
   const [activeCategory, setActiveCategory] = useState(categories[0]);
+  const resolvedCategory =
+    categories.find((c) => c.id === activeCategory?.id) ?? categories[0];
 
-  useEffect(() => {
-    if (categories[0]) setActiveCategory(categories[0]);
-  }, [categories]);
-
-  if (!activeCategory) return null;
+  if (!resolvedCategory) return null;
 
   return (
     <div className="group relative">
@@ -107,7 +105,7 @@ export function PriceDropdown({ categories }: PriceDropdownProps) {
                   key={cat.id ?? cat.slug}
                   onMouseEnter={() => setActiveCategory(cat)}
                   className={`cursor-pointer px-4 py-2 transition ${
-                    activeCategory.id === cat.id
+                    resolvedCategory.id === cat.id
                       ? "bg-accent/10 font-semibold text-accent"
                       : "hover:bg-gray-100"
                   }`}
@@ -119,9 +117,9 @@ export function PriceDropdown({ categories }: PriceDropdownProps) {
           </div>
           <div className="max-h-[500px] w-3/4 overflow-y-auto p-4">
             <h4 className="mb-3 border-b pb-2 font-bold text-gray-800">
-              {activeCategory.name}
+              {resolvedCategory.name}
             </h4>
-            <MultiColumnTree items={activeCategory.children} />
+            <MultiColumnTree items={resolvedCategory.children} />
           </div>
         </div>
       </div>

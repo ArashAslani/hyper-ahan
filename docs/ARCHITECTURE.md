@@ -61,6 +61,7 @@ npm run dev
 | [`docs/mvp-ahanalat.md`](mvp-ahanalat.md) | محدوده محصول MVP |
 | [`docs/frontend-integration.md`](frontend-integration.md) | قرارداد API بک‌اند |
 | [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | همین فایل |
+| [`docs/audit/phase0-summary.md`](audit/phase0-summary.md) | Phase 0 audit summary (English) |
 
 ---
 

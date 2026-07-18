@@ -37,8 +37,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
+  // Hydrate from localStorage after mount (SSR-safe). Keep effect: lazy useState
+  // would miss client restore because React reuses the server snapshot.
   useEffect(() => {
     const saved = getStorageItem<CartItem[]>(STORAGE_KEYS.cartItems);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional client hydration
     if (saved) setCartItems(saved);
     setHydrated(true);
   }, []);

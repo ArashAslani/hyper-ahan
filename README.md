@@ -36,6 +36,12 @@ src/
 | [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | قوانین توسعه |
 | [`docs/mvp-ahanalat.md`](docs/mvp-ahanalat.md) | محدوده MVP محصول |
 | [`docs/frontend-integration.md`](docs/frontend-integration.md) | قرارداد اتصال به بک‌اند |
+| [`docs/audit/phase0-summary.md`](docs/audit/phase0-summary.md) | Phase 0 engineering audit summary |
+
+## Environment
+
+- Node **22+** (see `.nvmrc`)
+- Copy `.env.example` → `.env.local` when overriding API origin
 
 ## فاز بعد
 
