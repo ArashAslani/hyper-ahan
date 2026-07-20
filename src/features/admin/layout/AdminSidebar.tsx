@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faGaugeHigh,
+  faImages,
+  faNewspaper,
   faRightFromBracket,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -14,6 +16,8 @@ import { useAdminAuth } from "../auth/AdminAuthProvider";
 
 const navItems = [
   { label: "داشبورد", href: routes.admin.dashboard, icon: faGaugeHigh },
+  { label: "مقالات", href: routes.admin.blog.list, icon: faNewspaper },
+  { label: "اسلایدرها", href: routes.admin.sliders.list, icon: faImages },
 ];
 
 type AdminSidebarProps = {
@@ -41,7 +45,10 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
 
       <nav className="flex-1 space-y-1 px-3">
         {navItems.map((item) => {
-          const active = pathname === item.href;
+          const active =
+            item.href === routes.admin.dashboard
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}

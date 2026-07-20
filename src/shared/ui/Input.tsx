@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
 
 const fieldClass =
   "peer w-full min-h-[var(--touch-min)] rounded-[var(--radius-md)] border border-border bg-surface px-4 pt-5 pb-2 text-base text-text placeholder-transparent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30";
@@ -7,11 +7,17 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
 };
 
-export function Input({ label, id, className = "", ...props }: InputProps) {
+// forwardRef so form libraries (React Hook Form's `register`) can attach a
+// DOM ref for focus management — behavior is unchanged for existing callers.
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  { label, id, className = "", ...props },
+  ref,
+) {
   const inputId = id ?? props.name;
   return (
     <div className="relative">
       <input
+        ref={ref}
         id={inputId}
         placeholder={label}
         className={`${fieldClass} ${className}`}
@@ -25,7 +31,7 @@ export function Input({ label, id, className = "", ...props }: InputProps) {
       </label>
     </div>
   );
-}
+});
 
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: string;

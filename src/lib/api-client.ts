@@ -38,14 +38,21 @@ export async function unwrapOperationResult<T>(res: Response): Promise<T> {
   return body.result as T;
 }
 
-// In the browser, relative paths go through the next.config.ts rewrite proxy
-// (same-origin, no CORS). On the server there is no running request to
-// piggyback a rewrite on — even at build time during static generation — so
-// server-side calls need an absolute backend origin.
-const API_BASE_URL =
-  typeof window === "undefined"
-    ? (process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5062")
-    : (process.env.NEXT_PUBLIC_API_BASE_URL ?? "");
+// Prefer an explicit origin. Empty env values are treated as unset.
+// Default: local backend. Browser may also use same-origin `/api` via
+// next.config.ts rewrites when NEXT_PUBLIC_API_BASE_URL is intentionally blank
+// in production-style proxy setups — for local admin CRUD we hit 5062 directly.
+function resolveApiBaseUrl(): string {
+  const raw =
+    typeof window === "undefined"
+      ? process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL
+      : process.env.NEXT_PUBLIC_API_BASE_URL;
+  const trimmed = raw?.trim();
+  if (trimmed) return trimmed.replace(/\/$/, "");
+  return "http://localhost:5062";
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 type ApiFetchInit = RequestInit & {
   accessToken?: string | null;
@@ -71,6 +78,30 @@ export async function apiFetch<T>(
 }
 
 /**
+ * Multipart helper for FormData uploads (Blog/Slider/Catalog admin create/update).
+ * Do NOT set Content-Type — the browser must attach the multipart boundary.
+ */
+export async function apiFetchFormData<T>(
+  path: string,
+  formData: FormData,
+  init: ApiFetchInit & { method?: string } = {},
+): Promise<T> {
+  const { accessToken, headers, method = "POST", ...rest } = init;
+
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    body: formData,
+    ...rest,
+    headers: {
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...headers,
+    },
+  });
+
+  return unwrapOperationResult<T>(res);
+}
+
+/**
  * Low-level fetch that returns the raw Response instead of unwrapping it.
  * Use only when a call needs to inspect status/headers directly (e.g. the
  * blog slug-redirect flow) — everything else should use `apiFetch`.
@@ -80,4 +111,20 @@ export async function apiFetchRaw(
   init: RequestInit = {},
 ): Promise<Response> {
   return fetch(`${API_BASE_URL}${path}`, init);
+}
+
+/**
+ * Download a binary resource (e.g. FileDto.url) for re-upload / duplicate flows.
+ * Accepts absolute URLs or API-relative paths.
+ */
+export async function apiFetchBlob(url: string, init: RequestInit = {}): Promise<Blob> {
+  const resolved =
+    url.startsWith("http://") || url.startsWith("https://")
+      ? url
+      : `${API_BASE_URL}${url.startsWith("/") ? url : `/${url}`}`;
+  const res = await fetch(resolved, init);
+  if (!res.ok) {
+    throw new ApiError("دانلود فایل ناموفق بود", res.status);
+  }
+  return res.blob();
 }

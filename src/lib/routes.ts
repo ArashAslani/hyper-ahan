@@ -30,6 +30,16 @@ export const routes = {
   admin: {
     login: "/admin/login",
     dashboard: "/admin",
+    blog: {
+      list: "/admin/blog",
+      new: "/admin/blog/new",
+      edit: (id: string) => `/admin/blog/${id}/edit`,
+    },
+    sliders: {
+      list: "/admin/sliders",
+      new: "/admin/sliders/new",
+      edit: (id: string) => `/admin/sliders/${id}/edit`,
+    },
   },
   about: "/about",
   contact: "/contact",
