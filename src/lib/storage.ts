@@ -8,6 +8,9 @@ export const STORAGE_KEYS = {
   isProfileComplete: "ha_isProfileComplete",
   /** Legacy mock auth flag — replace with JWT flow in API phase */
   user: "ha_user",
+  /** Admin JWT — kept separate from customer token per frontend-auth-integration.md */
+  adminAccessToken: "ha_admin_token",
+  adminId: "ha_admin_id",
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

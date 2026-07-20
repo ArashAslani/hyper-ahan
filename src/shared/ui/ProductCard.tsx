@@ -1,14 +1,10 @@
 import Link from "next/link";
 import { routes } from "@/lib/routes";
+import { productUnitLabels } from "@/lib/labels";
 import { PriceBadge } from "@/shared/ui/PriceBadge";
 import { Button } from "@/shared/ui/Button";
+import { AppImage } from "@/shared/ui/AppImage";
 import type { Product } from "@/types";
-
-const unitLabels: Record<Product["unit"], string> = {
-  Kg: "کیلو",
-  Ton: "تن",
-  Piece: "شاخه",
-};
 
 type ProductCardProps = {
   product: Product;
@@ -19,13 +15,14 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
     <article className="overflow-hidden rounded-[var(--radius-lg)] bg-surface shadow-[var(--shadow-card)] transition hover:-translate-y-0.5">
       <Link href={routes.products.detail(product.id)} className="block">
-        <div className="relative aspect-[4/3] bg-border/40">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={product.image}
+        <div className="relative aspect-[4/3]">
+          <AppImage
+            image={product.image}
             alt={product.name}
-            className="h-full w-full object-cover"
-            loading="lazy"
+            fill
+            preferThumbnail
+            sizes="(min-width: 768px) 25vw, 50vw"
+            className="h-full w-full"
           />
           {product.discountPercent ? (
             <span className="absolute top-2 left-2 rounded-full bg-danger px-2 py-1 text-xs font-bold text-white">
@@ -41,7 +38,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <p className="text-sm text-text-muted">{product.factoryName}</p>
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-text-muted">
           {product.weight ? <span>وزن: {product.weight}</span> : null}
-          <span>واحد: {unitLabels[product.unit]}</span>
+          <span>واحد: {productUnitLabels[product.unit]}</span>
           <span
             className={
               product.stock > 0 ? "text-success" : "text-danger"

@@ -1,16 +1,9 @@
 import Link from "next/link";
 import { routes } from "@/lib/routes";
+import { orderStatusLabels } from "@/lib/labels";
 import { Button } from "@/shared/ui/Button";
 import { OrderTimeline } from "@/shared/ui/OrderTimeline";
 import type { ProfileOrder, ProfileUser } from "@/types";
-
-const statusLabel: Record<ProfileOrder["status"], string> = {
-  Submitted: "ثبت شده — در انتظار تماس",
-  InReview: "در حال بررسی کارشناس",
-  Confirmed: "تأیید شده — آماده ارسال",
-  Completed: "تکمیل / تحویل",
-  Cancelled: "لغو شده",
-};
 
 type ProfilePageViewProps = {
   user: ProfileUser;
@@ -69,7 +62,7 @@ export function ProfilePageView({ user, orders }: ProfilePageViewProps) {
                 <span className="text-accent">{order.total} ت</span>
               </div>
               <p className="mb-2 text-xs text-text-muted">
-                {statusLabel[order.status]} · {order.date}
+                {orderStatusLabels[order.status]} · {order.date}
               </p>
               <OrderTimeline status={order.status} />
             </li>

@@ -2,17 +2,13 @@
 
 import Link from "next/link";
 import { routes } from "@/lib/routes";
+import { productUnitLabels } from "@/lib/labels";
 import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/shared/ui/Toast";
 import { Button } from "@/shared/ui/Button";
 import { PriceBadge } from "@/shared/ui/PriceBadge";
+import { AppImage } from "@/shared/ui/AppImage";
 import type { Product } from "@/types";
-
-const unitLabels: Record<Product["unit"], string> = {
-  Kg: "کیلو",
-  Ton: "تن",
-  Piece: "شاخه",
-};
 
 type ProductDetailViewProps = {
   product: Product;
@@ -29,12 +25,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
   return (
     <div className="pb-28">
-      <div className="aspect-[4/3] bg-border/30">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={product.image}
+      <div className="relative aspect-[4/3]">
+        <AppImage
+          image={product.image}
           alt={product.name}
-          className="h-full w-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className="h-full w-full"
         />
       </div>
       <div className="space-y-4 px-4 py-4">
@@ -66,7 +64,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           ) : null}
           <div className="flex justify-between gap-2">
             <dt className="text-text-muted">واحد</dt>
-            <dd className="font-medium">{unitLabels[product.unit]}</dd>
+            <dd className="font-medium">{productUnitLabels[product.unit]}</dd>
           </div>
           <div className="flex justify-between gap-2">
             <dt className="text-text-muted">موجودی</dt>

@@ -10,6 +10,16 @@ export const aboutNavItems: NavLinkItem[] = [
   { label: "تماس با ما", href: routes.contact },
 ];
 
+/** Primary site menu — exposed from the header nav drawer. */
+export const menuNavItems: NavLinkItem[] = [
+  { label: "محصولات", href: routes.products.list },
+  { label: "قیمت روز", href: `${routes.home}#daily-prices` },
+  { label: "محاسبه وزن", href: routes.weightCalc("rebar") },
+  { label: "مقالات", href: routes.blog.list },
+  { label: "درباره ما", href: routes.about },
+  { label: "تماس با ما", href: routes.contact },
+];
+
 export const bottomNavItems = [
   { label: "خانه", href: routes.home, icon: "home" as const },
   { label: "دسته‌ها", href: routes.categories, icon: "categories" as const },

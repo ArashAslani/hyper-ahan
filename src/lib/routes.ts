@@ -22,6 +22,15 @@ export const routes = {
     list: "/articles",
     detail: (id: string | number) => `/articles/${id}`,
   },
+  blog: {
+    list: "/blog",
+    detail: (slug: string) => `/blog/${slug}`,
+    category: (slug: string) => `/blog/category/${slug}`,
+  },
+  admin: {
+    login: "/admin/login",
+    dashboard: "/admin",
+  },
   about: "/about",
   contact: "/contact",
   app: "/app",

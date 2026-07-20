@@ -146,6 +146,8 @@ The roadmap protects the project from scope creep. Do not implement work from a 
 - cleanup aligns with Phase 2 user journeys and information architecture
 - no feature work mixed into cleanup
 
+**Status:** Complete. See `docs/phase3-summary.md` for the full Phase Closure Report (completed work, architecture decisions, deferred decisions, technical debt, risks, and Phase 4 readiness verification).
+
 ---
 
 ## Phase 4 — SEO & Catalog Foundation

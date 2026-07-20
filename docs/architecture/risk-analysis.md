@@ -17,14 +17,15 @@
 
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|------------|
-| Direct mock imports leak into UI | High | Medium | Enforce services-only data access; add import guardrails in Phase 3 |
-| Direct `fetch` appears in pages/components | High | Medium | Keep API calls in services; review against API guidelines |
+| Direct mock imports leak into UI | High | Low | **Resolved (Sprint 3.2):** ESLint `no-restricted-imports` blocks `@/mocks/*` outside `src/services/**`. Verified zero violations before the rule was added. |
+| Direct `fetch` appears in pages/components | High | Low | **Resolved (Sprint 3.2):** ESLint `no-restricted-globals` blocks raw `fetch` everywhere except `src/lib/api-client.ts`. Verified zero violations before the rule was added. |
 | Backend DTOs leak into UI props | High | Medium | Service-owned mappers; DTO naming convention |
 | Cart local state conflicts with future API cart | High | Medium | Define migration via `cartService`; preserve `sessionToken`/`cartId` rules |
 | Auth token handling leaks into components | High | Medium | Auth/session helpers only in Phase 6 |
-| Route strings spread across UI | Medium | Medium | Use `src/lib/routes.ts`; add review checklist |
-| Dead legacy UI receives future edits | High | High | Phase 3 cleanup/quarantine before feature work |
+| Route strings spread across UI | Medium | Low | Verified (Sprint 3.1/3.2): all UI consistently uses `@/lib/routes.ts`; no hard-coded route strings found |
+| Dead legacy UI receives future edits | High | Medium | Identified, compared against `customer-journey.md`/`navigation-strategy.md` (Sprint 3.2), and decided per-file (Phase 3 Closure — see `docs/phase3-summary.md` §2.3). Probability reduced from High to Medium since disposition is no longer ambiguous; execution still requires a future approved sprint. |
 | No test coverage for cart/checkout | High | High | Start targeted tests once tooling phase begins |
+| Shared UI holds domain-specific components (`ProductCard`, `OrderTimeline`) | Medium | Medium | Flagged in `src/shared/ui/README.md` (Sprint 3.1). Relocation deferred pending approval. |
 
 ---
 
@@ -84,8 +85,8 @@
 |------|--------|-------------|------------|
 | Documentation drift | High | Medium | Dependency matrix; update docs with architecture decisions |
 | Phase scope creep | High | Medium | Roadmap gate and constitution |
-| Missing formatter/hooks creates noisy diffs | Medium | High | Phase 3 tooling |
-| Duplicated labels/status maps | Medium | High | Centralize labels before API/auth/order maturity |
+| Missing formatter/hooks creates noisy diffs | Medium | High | Decision recorded (Phase 3 Closure): Prettier/Husky approved for later, see `docs/phase3-summary.md` §2.2. Installation still pending a future tooling sprint. |
+| Duplicated labels/status maps | Low | Low | **Resolved (Sprint 3.2):** unit labels and order-status labels centralized in `src/lib/labels.ts`; the 5 duplicate call sites now import from it |
 | Mixed Persian/English docs confuse agents | Medium | Medium | English standards are canonical; historical Persian docs are context |
 | Unapproved packages increase debt | Medium | Medium | Dependency approval rule |
 
@@ -93,11 +94,13 @@
 
 ## Highest Priority Mitigations for Phase 3
 
-1. Quarantine/remove dead legacy UI after confirming against Phase 2 journeys.
-2. Add formatting/tooling guardrails with approval.
-3. Add architecture import guardrails for mocks/services boundaries.
-4. Centralize domain labels for units/order statuses.
-5. Prepare SEO metadata/image strategy for Phase 4.
+1. Quarantine/remove dead legacy UI after confirming against Phase 2 journeys. **Decision recorded (Phase 3 Closure) — see `docs/phase3-summary.md` §2.3.** Execution still requires a separate future implementation sprint with explicit file-change approval.
+2. Add formatting/tooling guardrails with approval. **Decision recorded (Phase 3 Closure) — Prettier/Husky approved for later, see `docs/phase3-summary.md` §2.2.** Installation still requires a separate future tooling sprint with explicit package-install approval.
+3. ~~Add architecture import guardrails for mocks/services boundaries.~~ **Done (Sprint 3.2)** — see `eslint.config.mjs`.
+4. ~~Centralize domain labels for units/order statuses.~~ **Done (Sprint 3.2)** — see `src/lib/labels.ts`.
+5. Prepare SEO metadata/image strategy for Phase 4. **Open — this is Phase 4 scope**, per `docs/planning/next-phase-plan.md`.
+
+Phase 3 is closed (`docs/phase3-summary.md`). Items 1 and 2 above are decided-but-not-yet-executed; they carry forward as tracked technical debt (see `docs/phase3-summary.md` §4) and do not block Phase 4.
 
 ---
 

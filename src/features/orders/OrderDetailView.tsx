@@ -1,15 +1,8 @@
 import Link from "next/link";
 import { routes } from "@/lib/routes";
+import { orderStatusLabels } from "@/lib/labels";
 import { OrderTimeline } from "@/shared/ui/OrderTimeline";
 import type { ProfileOrder } from "@/types";
-
-const statusLabel: Record<ProfileOrder["status"], string> = {
-  Submitted: "ثبت شده — در انتظار تماس",
-  InReview: "در حال بررسی کارشناس",
-  Confirmed: "تأیید شده — آماده ارسال",
-  Completed: "تکمیل / تحویل",
-  Cancelled: "لغو شده",
-};
 
 type OrderDetailViewProps = {
   order: ProfileOrder;
@@ -23,7 +16,7 @@ export function OrderDetailView({ order }: OrderDetailViewProps) {
       </Link>
       <h1 className="mb-1 text-xl font-bold text-text">{order.orderNumber}</h1>
       <p className="mb-4 text-sm text-text-muted">
-        {statusLabel[order.status]} · {order.date}
+        {orderStatusLabels[order.status]} · {order.date}
       </p>
 
       <section className="mb-4 rounded-[var(--radius-lg)] bg-surface p-4 shadow-[var(--shadow-soft)]">

@@ -50,11 +50,44 @@ export type HomeCategory = {
   count: number;
 };
 
-export type Banner = {
-  id: number;
+/**
+ * Unified image contract returned by every backend module (Slider, Blog,
+ * Catalog, ...) — see docs/FileModule_frontend_integration.md.
+ */
+export type FileDto = {
+  id: string;
+  url: string;
+  thumbnailUrl?: string | null;
+  width?: number | null;
+  height?: number | null;
+  alt?: string | null;
+};
+
+export type SliderButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "link";
+
+export type SliderTextAlignment = "start" | "center" | "end" | "left" | "right";
+
+/** `PublicSliderResponseDto` — GET /api/sliders/group/{groupSlug} */
+export type PublicSlide = {
+  id: string;
   title: string;
-  subtitle: string;
-  image: string;
+  description?: string | null;
+  image: FileDto | null;
+  mobileImage: FileDto | null;
+  images: FileDto[];
+  link: string;
+  openInNewTab: boolean;
+  buttonText?: string | null;
+  buttonVariant?: SliderButtonVariant | null;
+  overlayOpacity?: number | null;
+  textAlignment?: SliderTextAlignment | null;
+  displayOrder: number;
+  priority: number;
 };
 
 export type JourneyStep = {
@@ -120,4 +153,78 @@ export type ProfileOrder = {
   total: string;
   status: OrderStatus;
   items: number;
+};
+
+export type AdminLoginRequest = {
+  username: string;
+  password: string;
+};
+
+export type AdminLoginResponse = {
+  adminId: string;
+  accessToken: string;
+};
+
+export type BlogAuthor = {
+  id: string;
+  name: string;
+  /** Backend has no author-avatar field today; kept for forward-compat with the File contract. */
+  avatar: FileDto | null;
+  role?: string;
+  bio?: string;
+};
+
+export type BlogCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+};
+
+export type BlogHeading = {
+  id: string;
+  text: string;
+  level: 2 | 3;
+};
+
+export type BlogSortBy =
+  | "PublishDateDesc"
+  | "PublishDateAsc"
+  | "VisitDesc"
+  | "VisitAsc"
+  | "TitleAsc"
+  | "TitleDesc";
+
+export type BlogPostSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  /** Backend File contract (docs/FileModule_frontend_integration.md §8) — render via `AppImage`. */
+  image: FileDto | null;
+  categoryId: string;
+  categorySlug: string;
+  categoryName: string;
+  author: BlogAuthor;
+  publishedAt: string;
+  updatedAt: string | null;
+  readingTimeMinutes: number;
+  tags: string[];
+  visits: number;
+};
+
+export type BlogPost = BlogPostSummary & {
+  bodyHtml: string;
+  headings: BlogHeading[];
+  metaTitle: string;
+  metaDescription: string;
+  canonicalSlug: string | null;
+};
+
+export type BlogListResult = {
+  items: BlogPostSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 };

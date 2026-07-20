@@ -1,7 +1,6 @@
 import type {
   Article,
   ArticleSummary,
-  Banner,
   HomeCategory,
   JourneyStep,
   PriceRow,
@@ -9,27 +8,6 @@ import type {
   ProfileUser,
   TeamMember,
 } from "@/types";
-
-export const bannersMock: Banner[] = [
-  {
-    id: 1,
-    title: "قیمت روز آهن‌آلات",
-    subtitle: "سفارش سریع، تماس کارشناس",
-    image: "https://placehold.co/1200x400/1A1A2E/white?text=هایپر+آهن",
-  },
-  {
-    id: 2,
-    title: "میلگرد و تیرآهن",
-    subtitle: "از کارخانه تا محل پروژه",
-    image: "https://placehold.co/1200x400/2D2D2D/white?text=مقاطع+فولادی",
-  },
-  {
-    id: 3,
-    title: "مشاوره رایگان خرید",
-    subtitle: "تماس: ۰۳۱-۹۱۶۹۰۴۳۳",
-    image: "https://placehold.co/1200x400/E67E22/white?text=مشاوره",
-  },
-];
 
 export const homeCategoriesMock: HomeCategory[] = [
   { id: 1, name: "تیرآهن", icon: "🏗️", slug: "beam", count: 45 },

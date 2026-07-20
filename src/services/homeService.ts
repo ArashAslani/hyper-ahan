@@ -1,6 +1,5 @@
 import {
   aboutCompanyText,
-  bannersMock,
   homeCategoriesMock,
   journeyStepsMock,
   pricesMock,
@@ -8,20 +7,20 @@ import {
   toArticleSummaries,
   articlesMock,
 } from "@/mocks/home";
+import { productsMock } from "@/mocks/products";
 import type {
   ArticleSummary,
-  Banner,
   HomeCategory,
   JourneyStep,
   PriceRow,
+  Product,
   TeamMember,
 } from "@/types";
 
-export const homeService = {
-  getBanners(): Promise<Banner[]> {
-    return Promise.resolve(bannersMock);
-  },
+/** No `featured` flag exists on Product yet — pick a fixed subset for the Home page. */
+const FEATURED_PRODUCT_IDS = [1, 3, 5, 6];
 
+export const homeService = {
   getCategories(): Promise<HomeCategory[]> {
     return Promise.resolve(homeCategoriesMock);
   },
@@ -40,6 +39,12 @@ export const homeService = {
 
   getFeaturedArticles(): Promise<ArticleSummary[]> {
     return Promise.resolve(toArticleSummaries(articlesMock).slice(0, 3));
+  },
+
+  getFeaturedProducts(): Promise<Product[]> {
+    return Promise.resolve(
+      productsMock.filter((product) => FEATURED_PRODUCT_IDS.includes(product.id)),
+    );
   },
 
   getAboutText(): Promise<string> {

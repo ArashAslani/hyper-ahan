@@ -15,12 +15,12 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
           همه
         </Link>
       </div>
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-3 sm:gap-4">
         {categories.slice(0, 8).map((cat) => (
           <Link
             key={cat.id}
             href={routes.products.category(cat.slug)}
-            className="flex min-h-[88px] flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] bg-surface p-2 text-center shadow-[var(--shadow-soft)] active:scale-95"
+            className="flex min-h-[88px] flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] bg-surface p-2 text-center shadow-[var(--shadow-soft)] transition active:scale-95"
           >
             <span className="text-2xl" aria-hidden>
               {cat.icon}
