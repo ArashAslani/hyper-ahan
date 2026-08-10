@@ -1,7 +1,7 @@
-import { ProductListView } from "@/features/catalog/ProductListView";
-import { productService } from "@/services/productService";
+import { redirect } from "next/navigation";
+import { routes } from "@/lib/routes";
 
-export default async function ProductsPage() {
-  const products = await productService.getAll();
-  return <ProductListView products={products} />;
+/** Legacy path — catalog lives under /catalog. */
+export default function ProductsRedirectPage() {
+  redirect(routes.catalog.root);
 }

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { routes } from "@/lib/routes";
 import { productUnitLabels } from "@/lib/labels";
-import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/shared/ui/Toast";
 import { Button } from "@/shared/ui/Button";
 import { PriceBadge } from "@/shared/ui/PriceBadge";
@@ -14,13 +13,18 @@ type ProductDetailViewProps = {
   product: Product;
 };
 
+/**
+ * Legacy mock product detail. QuoteCart ATC is wired from Catalog PDP (M3+),
+ * not from mock Product rows — no productVariantId / fake SKU mapping.
+ */
 export function ProductDetailView({ product }: ProductDetailViewProps) {
-  const { addToCart } = useCart();
   const { showToast } = useToast();
 
   const handleAddToCart = () => {
-    addToCart(product, 1);
-    showToast(`${product.name} به سبد اضافه شد`, "success");
+    showToast(
+      "افزودن به سبد از مسیر کاتالوگ و استعلام قیمت انجام می‌شود.",
+      "info",
+    );
   };
 
   return (

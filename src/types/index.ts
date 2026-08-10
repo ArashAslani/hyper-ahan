@@ -19,9 +19,8 @@ export type Product = {
 };
 
 export type CategoryNode = {
-  id?: number;
+  id: string;
   name: string;
-  slug: string;
   children: CategoryNode[];
   icon?: string;
 };
@@ -43,11 +42,10 @@ export type PriceRow = {
 };
 
 export type HomeCategory = {
-  id: number;
+  id: string;
   name: string;
-  icon: string;
-  slug: string;
-  count: number;
+  /** Optional visual hint — never hard-code business taxonomy. */
+  icon?: string;
 };
 
 /**
@@ -125,6 +123,10 @@ export type Article = ArticleSummary & {
   comments: ArticleComment[];
 };
 
+/**
+ * @deprecated Legacy mock cart line. Storefront uses `QuoteCartItem`
+ * (`src/types/quoteCart.ts`) — no productVariantId.
+ */
 export type CartItem = Product & {
   quantity: number;
   lockedPrice?: number;

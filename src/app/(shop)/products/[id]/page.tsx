@@ -1,18 +1,12 @@
-import { notFound } from "next/navigation";
-import { ProductDetailView } from "@/features/catalog/ProductDetailView";
-import { productService } from "@/services/productService";
+import { redirect } from "next/navigation";
+import { routes } from "@/lib/routes";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-export default async function ProductDetailPage({ params }: PageProps) {
+/** Legacy PDP path → canonical catalog PDP. */
+export default async function ProductDetailRedirectPage({ params }: PageProps) {
   const { id } = await params;
-  const product = await productService.getById(id);
-
-  if (!product) {
-    notFound();
-  }
-
-  return <ProductDetailView product={product} />;
+  redirect(routes.catalog.product(id));
 }

@@ -9,16 +9,8 @@ import type {
   TeamMember,
 } from "@/types";
 
-export const homeCategoriesMock: HomeCategory[] = [
-  { id: 1, name: "تیرآهن", icon: "🏗️", slug: "beam", count: 45 },
-  { id: 2, name: "نبشی", icon: "📐", slug: "angle", count: 32 },
-  { id: 3, name: "ورق سیاه", icon: "📄", slug: "sheet", count: 28 },
-  { id: 4, name: "میلگرد", icon: "⚙️", slug: "rebar", count: 56 },
-  { id: 5, name: "لوله", icon: "🔧", slug: "pipe", count: 41 },
-  { id: 6, name: "پروفیل", icon: "📦", slug: "profile", count: 37 },
-  { id: 7, name: "سپری", icon: "🛡️", slug: "tee", count: 19 },
-  { id: 8, name: "قوطی", icon: "🧰", slug: "box", count: 24 },
-];
+/** Legacy mock — storefront home uses catalogService; kept for offline fixtures only. */
+export const homeCategoriesMock: HomeCategory[] = [];
 
 export const pricesMock: PriceRow[] = [
   {

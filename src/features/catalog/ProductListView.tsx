@@ -9,20 +9,17 @@ import { BottomSheet } from "@/shared/ui/BottomSheet";
 import { Fab } from "@/shared/ui/Fab";
 import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
-import { useCart } from "@/providers/CartProvider";
-import { useToast } from "@/shared/ui/Toast";
 import type { Product } from "@/types";
 
 type ProductListViewProps = {
   products: Product[];
 };
 
+/** Legacy mock list — QuoteCart ATC is Catalog PDP (M3+), not mock Product rows. */
 export function ProductListView({ products }: ProductListViewProps) {
   const [query, setQuery] = useState("");
   const [factory, setFactory] = useState<string>("all");
   const [sheetOpen, setSheetOpen] = useState(false);
-  const { addToCart } = useCart();
-  const { showToast } = useToast();
 
   const factories = useMemo(
     () => Array.from(new Set(products.map((p) => p.factoryName))),
@@ -40,11 +37,6 @@ export function ProductListView({ products }: ProductListViewProps) {
     return matchesQuery && matchesFactory;
   });
 
-  const handleAdd = (product: Product) => {
-    addToCart(product, 1);
-    showToast(`${product.name} به سبد اضافه شد`, "success");
-  };
-
   return (
     <div className="px-4 py-4">
       <h1 className="mb-3 text-xl font-bold text-text">محصولات</h1>
@@ -59,11 +51,7 @@ export function ProductListView({ products }: ProductListViewProps) {
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={handleAdd}
-            />
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
