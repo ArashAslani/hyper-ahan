@@ -22,5 +22,5 @@ App-level context wrappers for state that truly spans multiple routes. Providers
 
 ```text
 AppProviders.tsx   composition root, wraps children with all app-level providers (used in src/app/layout.tsx)
-CartProvider.tsx   anonymous cart state (local storage-backed); see docs/architecture/state-management.md "Shopping Cart State"
+CartProvider.tsx   QuoteCart via CartIntentionPort / LocalQuoteCartAdapter (`ha_quote_cart_v1`); see state-management.md "Shopping Cart State"
 ```

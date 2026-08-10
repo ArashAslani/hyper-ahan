@@ -1,34 +1,45 @@
 import Link from "next/link";
 import { routes } from "@/lib/routes";
-import { formatPrice } from "@/lib/format";
 import { Button } from "@/shared/ui/Button";
 
 type CartSummaryBarProps = {
   totalItems: number;
   totalPrice: number;
+  /** Defaults to approximate-quote framing. */
+  totalLabel?: string;
   ctaLabel?: string;
   ctaHref?: string;
   onCtaClick?: () => void;
+  /** When true, CTA is shown disabled (no navigation). */
+  ctaDisabled?: boolean;
 };
 
 export function CartSummaryBar({
   totalItems,
   totalPrice,
-  ctaLabel = "تسویه حساب",
+  totalLabel = "جمع تقریبی",
+  ctaLabel = "بررسی استعلام",
   ctaHref = routes.checkout,
   onCtaClick,
+  ctaDisabled = false,
 }: CartSummaryBarProps) {
   return (
     <div className="fixed right-0 bottom-[var(--bottom-nav-h)] left-0 z-40 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur">
       <div className="mx-auto flex max-w-xl items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-xs text-text-muted">{totalItems} قلم</p>
+          <p className="text-xs text-text-muted">{totalLabel}</p>
           <p className="truncate text-lg font-bold text-accent">
-            {formatPrice(totalPrice)} تومان
+            {new Intl.NumberFormat("fa-IR").format(totalPrice)} ریال
           </p>
         </div>
-        {onCtaClick ? (
-          <Button variant="accent" className="min-w-[8.5rem]" onClick={onCtaClick}>
+        {onCtaClick || ctaDisabled ? (
+          <Button
+            variant="accent"
+            className="min-w-[8.5rem]"
+            disabled={ctaDisabled}
+            onClick={onCtaClick}
+          >
             {ctaLabel}
           </Button>
         ) : (

@@ -1,8 +1,12 @@
 export const STORAGE_KEYS = {
   sessionToken: "ha_sessionToken",
+  /** Legacy Ordering cart — cleared on QuoteCart migrate; unused until platform alignment */
   cartId: "ha_cartId",
   cartExpiresAt: "ha_cartExpiresAt",
+  /** Legacy mock Product cart — cleared by LocalQuoteCartAdapter; do not write */
   cartItems: "ha_cartItems",
+  /** Temporary QuoteCart (productId + orderUnitId + Pricing snapshot) */
+  quoteCart: "ha_quote_cart_v1",
   accessToken: "ha_accessToken",
   userId: "ha_userId",
   isProfileComplete: "ha_isProfileComplete",

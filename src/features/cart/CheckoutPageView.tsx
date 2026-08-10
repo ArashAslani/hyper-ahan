@@ -1,171 +1,174 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/lib/routes";
-import { formatPrice, parsePrice } from "@/lib/format";
 import { useCart } from "@/providers/CartProvider";
-import { useToast } from "@/shared/ui/Toast";
-import { Input, Textarea } from "@/shared/ui/Input";
+import {
+  QUOTE_CART_LINE_STATE_LABEL,
+  cartHasPricedCheckoutBlockers,
+  formatQuoteValidityLabel,
+  getQuoteCartEngineeringRef,
+  getQuoteCartLineState,
+  parseEngineeringCartRef,
+  quoteCartLineKey,
+} from "@/types/quoteCart";
 import { Button } from "@/shared/ui/Button";
-import { Stepper } from "@/shared/ui/OrderTimeline";
 import { EmptyState } from "@/shared/ui/EmptyState";
 
+/** Align with AddToCartSheet — Pricing amounts shown as ریال (fa-IR). */
+function formatLineMoney(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return "—";
+  return `${new Intl.NumberFormat("fa-IR").format(value)} ریال`;
+}
+
+/**
+ * Quote review only — no Ordering backend yet.
+ * Does not create orders, clear the cart, or claim success.
+ */
 export function CheckoutPageView() {
-  const { cartItems, getTotalPrice, clearCart } = useCart();
+  const { items, getApproximateTotal } = useCart();
   const router = useRouter();
-  const { showToast } = useToast();
-  const [step, setStep] = useState(0);
-  const [agreement, setAgreement] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    nationalId: "",
-    address: "",
-    city: "",
-  });
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(Date.now()), 15_000);
+    return () => window.clearInterval(id);
+  }, []);
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <EmptyState
         title="سبد خالی است"
-        description="برای تسویه ابتدا محصول اضافه کنید."
+        description="برای بررسی استعلام ابتدا محصول اضافه کنید."
         actionLabel="محصولات"
         onAction={() => router.push(routes.products.list)}
       />
     );
   }
 
-  const submit = () => {
-    if (!agreement) {
-      showToast("پذیرش توافق‌نامه الزامی است", "error");
-      return;
-    }
-    showToast("سفارش ثبت شد؛ کارشناس با شما تماس می‌گیرد.", "success");
-    clearCart();
-    router.push(routes.orders.list);
-  };
+  const estimate = getApproximateTotal();
+  const checkoutBlocked = cartHasPricedCheckoutBlockers(items, nowMs);
+
+  if (checkoutBlocked) {
+    return (
+      <div className="px-4 py-4 pb-8">
+        <h1 className="mb-4 text-xl font-bold text-text">بررسی استعلام</h1>
+        <div className="rounded-[var(--radius-lg)] border border-danger/30 bg-danger/5 p-4">
+          <p className="font-bold text-danger">
+            بررسی با استعلام فعلی ممکن نیست
+          </p>
+          <p className="mt-2 text-sm text-text-muted">
+            یک یا چند قلم سبد منقضی، نامعتبر یا غیرقابل فروش است. به سبد
+            برگردید و «استعلام مجدد قیمت» بزنید. ثبت سفارش تا اتصال Ordering
+            فعال نیست.
+          </p>
+          <ul className="mt-3 space-y-1 text-sm text-text">
+            {items.map((item) => {
+              const state = getQuoteCartLineState(item, nowMs);
+              if (state === "quoted") return null;
+              return (
+                <li key={quoteCartLineKey(item)}>
+                  {item.displayName}: {QUOTE_CART_LINE_STATE_LABEL[state]}
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-4 flex flex-col gap-2">
+            <Button fullWidth onClick={() => router.push(routes.cart)}>
+              بازگشت به سبد
+            </Button>
+            <a href={routes.phone.call} className="block">
+              <Button type="button" variant="outline" fullWidth>
+                تماس با کارشناس
+              </Button>
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-4 pb-8">
-      <h1 className="mb-4 text-xl font-bold text-text">تسویه حساب</h1>
-      <Stepper
-        steps={["اطلاعات", "آدرس", "تأیید"]}
-        current={step}
-      />
+      <h1 className="mb-4 text-xl font-bold text-text">بررسی استعلام</h1>
 
-      {step === 0 ? (
-        <div className="space-y-3">
-          <Input
-            label="نام و نام خانوادگی"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            label="موبایل"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            label="کد ملی"
-            name="nationalId"
-            value={formData.nationalId}
-            onChange={handleChange}
-            required
-          />
-          <Button fullWidth onClick={() => setStep(1)}>
-            ادامه
+      <div className="mb-4 rounded-[var(--radius-md)] border border-border bg-bg px-3 py-3">
+        <p className="text-sm text-text">
+          این صفحه فقط مرور استعلام سبد است. ثبت سفارش / درخواست رسمی تا اتصال
+          بک‌اند Ordering فعال نیست.
+        </p>
+        <p className="mt-1 text-xs text-text-muted">
+          اعتبار موقت هر قلم حدود ۳۰ دقیقه است؛ برای قطعی شدن با کارشناس هماهنگ
+          کنید.
+        </p>
+      </div>
+
+      <div className="rounded-[var(--radius-lg)] bg-surface p-4 shadow-[var(--shadow-soft)]">
+        <h2 className="mb-2 font-bold text-text">خلاصه استعلام</h2>
+        <ul className="mb-3 space-y-3 text-sm">
+          {items.map((item) => {
+            const eng = parseEngineeringCartRef(
+              getQuoteCartEngineeringRef(item),
+            );
+            const validity = formatQuoteValidityLabel(item.expiresAt, nowMs);
+            return (
+              <li
+                key={quoteCartLineKey(item)}
+                className="border-b border-border/60 pb-2 last:border-0 last:pb-0"
+              >
+                <div className="flex justify-between gap-2">
+                  <span className="font-medium text-text">
+                    {item.displayName} × {item.quantity}{" "}
+                    <span className="text-text-muted">
+                      ({item.orderUnitLabel})
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-accent">
+                    {formatLineMoney(item.quote?.finalPrice)}
+                  </span>
+                </div>
+                {validity ? (
+                  <p className="mt-0.5 text-xs text-text-muted">{validity}</p>
+                ) : null}
+                {eng ? (
+                  <p className="mt-0.5 text-xs text-accent">
+                    از ماشین‌حساب ·{" "}
+                    {new Intl.NumberFormat("fa-IR").format(eng.quantity)}
+                    {eng.unit ? ` ${eng.unit}` : ""}
+                  </p>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="text-lg font-bold text-accent">
+          جمع تقریبی: {new Intl.NumberFormat("fa-IR").format(estimate)} ریال
+        </p>
+        <p className="mt-1 text-xs text-text-muted">
+          جمع تقریبی استعلام است؛ مبلغ نهایی پس از هماهنگی کارشناس مشخص می‌شود.
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2">
+        <a href={routes.phone.call} className="block">
+          <Button type="button" variant="accent" fullWidth>
+            تماس با کارشناس
           </Button>
-        </div>
-      ) : null}
+        </a>
+        <Button
+          type="button"
+          variant="outline"
+          fullWidth
+          onClick={() => router.push(routes.cart)}
+        >
+          بازگشت به سبد
+        </Button>
+      </div>
 
-      {step === 1 ? (
-        <div className="space-y-3">
-          <Input
-            label="شهر"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            required
-          />
-          <Textarea
-            label="آدرس تخلیه"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            rows={3}
-            required
-          />
-          <div className="flex gap-2">
-            <Button variant="outline" fullWidth onClick={() => setStep(0)}>
-              قبلی
-            </Button>
-            <Button fullWidth onClick={() => setStep(2)}>
-              ادامه
-            </Button>
-          </div>
-        </div>
-      ) : null}
-
-      {step === 2 ? (
-        <div className="space-y-4">
-          <div className="rounded-[var(--radius-lg)] bg-surface p-4 shadow-[var(--shadow-soft)]">
-            <h2 className="mb-2 font-bold text-text">خلاصه سفارش</h2>
-            <ul className="mb-3 space-y-2 text-sm">
-              {cartItems.map((item) => (
-                <li key={item.id} className="flex justify-between gap-2">
-                  <span>
-                    {item.name} × {item.quantity}
-                  </span>
-                  <span>
-                    {formatPrice(
-                      (item.lockedPrice ?? parsePrice(item.price)) *
-                        item.quantity,
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-lg font-bold text-accent">
-              جمع: {formatPrice(getTotalPrice())} تومان
-            </p>
-          </div>
-
-          <label className="flex min-h-[var(--touch-min)] items-start gap-3 rounded-[var(--radius-md)] bg-surface p-3 text-sm">
-            <input
-              type="checkbox"
-              checked={agreement}
-              onChange={(e) => setAgreement(e.target.checked)}
-              className="mt-1 h-5 w-5 accent-[var(--color-accent)]"
-            />
-            <span className="text-text-muted">
-              توافق‌نامه خرید کارشناسی (نسخه v1) را می‌پذیرم. قیمت تا ۳۰ دقیقه
-              قفل است و تسویه نهایی پس از هماهنگی کارشناس انجام می‌شود.
-            </span>
-          </label>
-
-          <div className="flex gap-2">
-            <Button variant="outline" fullWidth onClick={() => setStep(1)}>
-              قبلی
-            </Button>
-            <Button fullWidth onClick={submit}>
-              ثبت سفارش
-            </Button>
-          </div>
-        </div>
-      ) : null}
+      <p className="mt-4 text-center text-xs text-text-muted">
+        دکمه ثبت سفارش غیرفعال است تا سرویس Ordering آماده شود.
+      </p>
     </div>
   );
 }

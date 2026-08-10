@@ -9,18 +9,54 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { parsePrice } from "@/lib/format";
-import { getStorageItem, setStorageItem, STORAGE_KEYS } from "@/lib/storage";
-import type { CartItem, Product } from "@/types";
+import { localQuoteCartAdapter } from "@/features/cart/LocalQuoteCartAdapter";
+import type { CartIntentionPort } from "@/features/cart/CartIntentionPort";
+import { pricingService } from "@/services/pricingService";
+import {
+  CART_QUOTE_TTL_MS,
+  getQuoteCartEngineeringRef,
+  getQuoteCartLineState,
+  quoteCartLineNeedsRequote,
+  type QuoteCartItem,
+  type QuoteCartLineState,
+  type QuoteCartQuoteSnapshot,
+} from "@/types/quoteCart";
+
+export type RequoteLineResult = {
+  productId: string;
+  orderUnitId: string;
+  previousFinalPrice: number | null;
+  nextFinalPrice: number | null;
+  state: QuoteCartLineState;
+};
 
 type CartContextValue = {
-  cartItems: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, newQty: number) => void;
-  getTotalPrice: () => number;
-  getTotalItems: () => number;
+  items: QuoteCartItem[];
+  addOrUpdate: (item: QuoteCartItem) => void;
+  remove: (productId: string, orderUnitId: string) => void;
+  /**
+   * Marks line quote stale — Pricing re-quote required before money is valid.
+   * Quantity ≤ 0 removes the line.
+   */
+  updateQuantity: (
+    productId: string,
+    orderUnitId: string,
+    quantity: number,
+  ) => void;
   clearCart: () => void;
+  /** Estimate only: sum of non-expired quoted finalPrices. */
+  getApproximateTotal: () => number;
+  getTotalItems: () => number;
+  /**
+   * Re-quote one line via Pricing calculate.
+   * Preserves productId, orderUnitId, quantity. Never rescales money.
+   */
+  requoteLine: (
+    productId: string,
+    orderUnitId: string,
+  ) => Promise<RequoteLineResult>;
+  /** Re-quote every line that is not a fresh sellable quote. */
+  requoteAllNeedingRefresh: () => Promise<RequoteLineResult[]>;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -33,104 +69,156 @@ export function useCart() {
   return context;
 }
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+type CartProviderProps = {
+  children: ReactNode;
+  /** Inject for tests; defaults to localStorage QuoteCart adapter. */
+  port?: CartIntentionPort;
+};
 
-  // Hydrate from localStorage after mount (SSR-safe). Keep effect: lazy useState
-  // would miss client restore because React reuses the server snapshot.
+function applyCalculateResult(
+  item: QuoteCartItem,
+  quote: QuoteCartQuoteSnapshot,
+): QuoteCartItem {
+  const quotedAt = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + CART_QUOTE_TTL_MS).toISOString();
+  // Preserve eng audit across re-quote; priceId is Pricing correlation only.
+  const engineeringRef = getQuoteCartEngineeringRef(item);
+  const priceId = quote.priceId ?? null;
+  const calculationRef =
+    engineeringRef && priceId
+      ? `${engineeringRef}|priceId:${priceId}`
+      : (engineeringRef ?? priceId);
+
+  return {
+    ...item,
+    // Identity + qty preserved — never auto-change unit or rescale money.
+    productId: item.productId,
+    orderUnitId: item.orderUnitId,
+    quantity: item.quantity,
+    quote,
+    quotedAt,
+    expiresAt,
+    calculationRef,
+    engineeringRef,
+    // Fresh quote supersedes struck snapshot.
+    lastKnownFinalPrice: null,
+  };
+}
+
+export function CartProvider({ children, port }: CartProviderProps) {
+  const adapter = port ?? localQuoteCartAdapter;
+  const [items, setItems] = useState<QuoteCartItem[]>([]);
+
+  // Hydrate from port after mount (SSR-safe).
   useEffect(() => {
-    const saved = getStorageItem<CartItem[]>(STORAGE_KEYS.cartItems);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional client hydration
-    if (saved) setCartItems(saved);
-    setHydrated(true);
-  }, []);
+    setItems(adapter.load());
+  }, [adapter]);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    setStorageItem(STORAGE_KEYS.cartItems, cartItems);
-  }, [cartItems, hydrated]);
-
-  const addToCart = useCallback((product: Product, quantity = 1) => {
-    const lockedPrice = parsePrice(product.price);
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + 30 * 60 * 1000).toISOString();
-
-    setCartItems((prev) => {
-      const existingIndex = prev.findIndex((item) => item.id === product.id);
-      if (existingIndex !== -1) {
-        const next = [...prev];
-        next[existingIndex] = {
-          ...next[existingIndex],
-          quantity: next[existingIndex].quantity + quantity,
-        };
-        return next;
-      }
-      return [
-        ...prev,
-        {
-          ...product,
-          quantity,
-          lockedPrice,
-          lockedAt: now.toISOString(),
-          expiresAt,
-        },
-      ];
-    });
-  }, []);
-
-  const removeFromCart = useCallback((id: number) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  }, []);
-
-  const updateQuantity = useCallback(
-    (id: number, newQty: number) => {
-      if (newQty <= 0) {
-        removeFromCart(id);
-        return;
-      }
-      setCartItems((prev) =>
-        prev.map((item) =>
-          item.id === id ? { ...item, quantity: newQty } : item,
-        ),
-      );
+  const addOrUpdate = useCallback(
+    (item: QuoteCartItem) => {
+      setItems(adapter.addOrUpdate(item));
     },
-    [removeFromCart],
+    [adapter],
   );
 
-  const getTotalPrice = useCallback(() => {
-    return cartItems.reduce((total, item) => {
-      const unit = item.lockedPrice ?? parsePrice(item.price);
-      return total + unit * item.quantity;
-    }, 0);
-  }, [cartItems]);
+  const remove = useCallback(
+    (productId: string, orderUnitId: string) => {
+      setItems(adapter.remove(productId, orderUnitId));
+    },
+    [adapter],
+  );
 
-  const getTotalItems = useCallback(() => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
-  }, [cartItems]);
+  const updateQuantity = useCallback(
+    (productId: string, orderUnitId: string, quantity: number) => {
+      setItems(adapter.updateQuantity(productId, orderUnitId, quantity));
+    },
+    [adapter],
+  );
 
   const clearCart = useCallback(() => {
-    setCartItems([]);
-  }, []);
+    adapter.clear();
+    setItems([]);
+  }, [adapter]);
+
+  const getApproximateTotal = useCallback(() => {
+    return adapter.getApproximateTotal(items);
+  }, [adapter, items]);
+
+  const getTotalItems = useCallback(() => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  }, [items]);
+
+  const requoteLine = useCallback(
+    async (productId: string, orderUnitId: string): Promise<RequoteLineResult> => {
+      const current = adapter.load();
+      const item = current.find(
+        (line) =>
+          line.productId === productId && line.orderUnitId === orderUnitId,
+      );
+      if (!item) {
+        throw new Error("قلم سبد یافت نشد");
+      }
+
+      const previousFinalPrice =
+        item.quote?.finalPrice ?? item.lastKnownFinalPrice ?? null;
+
+      const quote = await pricingService.calculate({
+        productId: item.productId,
+        orderUnitId: item.orderUnitId,
+        quantity: item.quantity,
+      });
+
+      const next = applyCalculateResult(item, quote);
+      setItems(adapter.addOrUpdate(next));
+
+      return {
+        productId: item.productId,
+        orderUnitId: item.orderUnitId,
+        previousFinalPrice,
+        nextFinalPrice: quote.finalPrice ?? null,
+        state: getQuoteCartLineState(next),
+      };
+    },
+    [adapter],
+  );
+
+  const requoteAllNeedingRefresh = useCallback(async (): Promise<
+    RequoteLineResult[]
+  > => {
+    const current = adapter.load();
+    const targets = current.filter((item) =>
+      quoteCartLineNeedsRequote(getQuoteCartLineState(item)),
+    );
+    const results: RequoteLineResult[] = [];
+    for (const item of targets) {
+      results.push(await requoteLine(item.productId, item.orderUnitId));
+    }
+    return results;
+  }, [adapter, requoteLine]);
 
   const value = useMemo(
     () => ({
-      cartItems,
-      addToCart,
-      removeFromCart,
+      items,
+      addOrUpdate,
+      remove,
       updateQuantity,
-      getTotalPrice,
-      getTotalItems,
       clearCart,
+      getApproximateTotal,
+      getTotalItems,
+      requoteLine,
+      requoteAllNeedingRefresh,
     }),
     [
-      cartItems,
-      addToCart,
-      removeFromCart,
+      items,
+      addOrUpdate,
+      remove,
       updateQuantity,
-      getTotalPrice,
-      getTotalItems,
       clearCart,
+      getApproximateTotal,
+      getTotalItems,
+      requoteLine,
+      requoteAllNeedingRefresh,
     ],
   );
 
