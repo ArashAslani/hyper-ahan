@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faBoxesStacked,
   faGaugeHigh,
   faImages,
+  faMagnifyingGlass,
   faNewspaper,
   faRightFromBracket,
   faXmark,
@@ -16,6 +18,8 @@ import { useAdminAuth } from "../auth/AdminAuthProvider";
 
 const navItems = [
   { label: "داشبورد", href: routes.admin.dashboard, icon: faGaugeHigh },
+  { label: "کاتالوگ", href: routes.admin.catalog.root, icon: faBoxesStacked },
+  { label: "جستجو", href: routes.admin.search, icon: faMagnifyingGlass },
   { label: "مقالات", href: routes.admin.blog.list, icon: faNewspaper },
   { label: "اسلایدرها", href: routes.admin.sliders.list, icon: faImages },
 ];
