@@ -12,9 +12,9 @@ export const aboutNavItems: NavLinkItem[] = [
 
 /** Primary site menu — exposed from the header nav drawer. */
 export const menuNavItems: NavLinkItem[] = [
-  { label: "محصولات", href: routes.products.list },
-  { label: "قیمت روز", href: `${routes.home}#daily-prices` },
-  { label: "محاسبه وزن", href: routes.weightCalc("rebar") },
+  { label: "کاتالوگ", href: routes.catalog.root },
+  { label: "جستجو", href: routes.search },
+  { label: "محاسبه‌گرها", href: routes.tools.list },
   { label: "مقالات", href: routes.blog.list },
   { label: "درباره ما", href: routes.about },
   { label: "تماس با ما", href: routes.contact },
@@ -22,22 +22,21 @@ export const menuNavItems: NavLinkItem[] = [
 
 export const bottomNavItems = [
   { label: "خانه", href: routes.home, icon: "home" as const },
-  { label: "دسته‌ها", href: routes.categories, icon: "categories" as const },
+  { label: "دسته‌ها", href: routes.catalog.root, icon: "categories" as const },
   { label: "سبد", href: routes.cart, icon: "cart" as const },
-  { label: "سفارش‌ها", href: routes.orders.list, icon: "orders" as const },
+  { label: "جستجو", href: routes.search, icon: "search" as const },
   { label: "پروفایل", href: routes.profile, icon: "profile" as const },
 ] as const;
 
 export const footerQuickLinks: NavLinkItem[] = [
   { label: "درباره ما", href: routes.about },
   { label: "تماس با ما", href: routes.contact },
-  { label: "محصولات", href: routes.products.list },
+  { label: "کاتالوگ", href: routes.catalog.root },
+  { label: "محاسبه‌گرها", href: routes.tools.list },
 ];
 
+/** Product footer links are backend-driven — populated at render time from catalog. */
 export const footerProductLinks: NavLinkItem[] = [
-  { label: "تیرآهن", href: routes.products.category("beam") },
-  { label: "نبشی", href: routes.products.category("angle") },
-  { label: "میلگرد", href: routes.products.category("rebar") },
-  { label: "ورق سیاه", href: routes.products.category("sheet") },
-  { label: "لوله و پروفیل", href: routes.products.category("profile") },
+  { label: "کاتالوگ محصولات", href: routes.catalog.root },
+  { label: "جستجوی محصولات", href: routes.search },
 ];

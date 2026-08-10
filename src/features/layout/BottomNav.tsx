@@ -7,7 +7,7 @@ import {
   faHome,
   faThLarge,
   faShoppingCart,
-  faClipboardList,
+  faSearch,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { bottomNavItems } from "@/config/nav.config";
@@ -17,7 +17,7 @@ const iconMap = {
   home: faHome,
   categories: faThLarge,
   cart: faShoppingCart,
-  orders: faClipboardList,
+  search: faSearch,
   profile: faUser,
 } as const;
 
