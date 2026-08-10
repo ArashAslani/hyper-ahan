@@ -169,22 +169,25 @@ Authentication must not be implemented during documentation, cleanup, SEO, or AP
 
 Cart is conversion-critical.
 
-Current local strategy:
+**FREEZE:** No Ordering cart / `productVariantId` until platform alignment. See `docs/docs/frontend/04-Pricing-Frontend-Architecture.md` §5.2.
 
-- client provider/context
-- local storage with `ha_*` keys
-- price lock represented locally/mocked
+Current local strategy (QuoteCart):
 
-Future API strategy:
+- `CartProvider` + `CartIntentionPort` / `LocalQuoteCartAdapter`
+- storage key `ha_quote_cart_v1`
+- line key `(productId, orderUnitId)`; money from Pricing `FinalPrice` snapshot only
+- quantity change clears quote (re-quote required); FE never rescales money
 
-- `cartService` owns cart API calls
+Future API strategy (after Catalog ↔ Ordering alignment):
+
+- `cartService` owns Ordering cart API calls
 - anonymous cart uses `sessionToken` and/or `cartId`
 - price lock and expiration come from backend
 - checkout consumes service-owned cart state
 
 Rules:
 
-- UI must explain locked price and expiration.
+- UI must explain quoted price and expiration / stale lines.
 - Submit order must clear/expire cart only after confirmed success.
 - Do not retry order submission blindly.
 

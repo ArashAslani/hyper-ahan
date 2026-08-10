@@ -1,24 +1,10 @@
-# HyperAhan Project Constitution
+# HyperAhan Frontend Engineering Constitution
 
-**Status:** Highest-priority permanent project document  
+**Status:** Repository-local frontend engineering guidance  
 **Created:** Phase 1 — Project Constitution  
-**Applies to:** Humans, Cursor agents, AI agents, and all future development
+**Applies to:** Frontend repository engineering work in `Front/hyper-ahan/`
 
-This constitution defines how HyperAhan must be built and maintained. When another document conflicts with this file, this file wins unless the user explicitly approves a constitutional update.
-
----
-
-## Project Identity
-
-HyperAhan is an SEO-first, mobile-first steel e-commerce platform.
-
-Primary business goal:
-
-> Convert visitors into customers.
-
-Technical goal:
-
-> Keep the project maintainable, modular, scalable, fast, reusable, and solo-developer friendly for years.
+This file defines frontend engineering conventions for this repository. `Docs/CONSTITUTION.md` and Locked central documentation under `Docs/` override this file for business truth, contracts, cross-project decisions, and project-wide architecture.
 
 ---
 
@@ -108,25 +94,6 @@ Rules:
 - Placeholder/thin content must not be indexed.
 - Performance regressions are SEO regressions.
 
-Future Blog work must not start until the roadmap phase allows it.
-
----
-
-## Business Values
-
-Business decisions must support:
-
-- buyer trust
-- fast price/product discovery
-- easy consultation/contact
-- qualified purchase requests
-- clear order expectations
-- sustainable operations
-
-Do not add a feature unless it helps conversion, trust, SEO, or operational maintainability.
-
----
-
 ## Cursor Behavior
 
 Cursor must be used as an architecture-aware assistant, not a code generator without context.
@@ -134,7 +101,7 @@ Cursor must be used as an architecture-aware assistant, not a code generator wit
 Rules for Cursor work:
 
 - Open the `hyper-ahan/` workspace, not the broader parent folder, when possible.
-- Read this constitution before significant work.
+- After reading the selected Task and its `Required Context`, use this file for Frontend-local technical guidance. Locked central documentation referenced by the Task overrides it.
 - Prefer targeted file reads over broad noisy searches.
 - Avoid editing legacy/dead UI unless the task is specifically cleanup.
 - Do not rely on memory when standards documents exist.

@@ -3,6 +3,8 @@
 
 > مخاطب: توسعه‌دهنده، محصول، یا ایجنت AI که باید سریع بفهمد پروژه چیست، کجاست، چطور ساخته شده، و الان چه کارهایی با اپ ممکن است.  
 > وضعیت: **فرانت‌اند MVP مشتری** روی Next.js — دادهٔ mock؛ اتصال API فاز بعد.
+>
+> **FREEZE (cart):** No `productVariantId` / fake Variant mapping / Ordering cart until platform alignment. Temporary storefront cart = **QuoteCart** (`ha_quote_cart_v1`). See `docs/docs/frontend/04-Pricing-Frontend-Architecture.md` §5.2.
 
 ---
 
@@ -253,8 +255,9 @@ sequenceDiagram
 
 کلیدهای storage مهم (`src/lib/storage.ts`):
 
-- `ha_cartItems`  
-- `ha_sessionToken` / `ha_cartId` (آماده فاز API)  
+- `ha_quote_cart_v1` — QuoteCart موقت (productId + orderUnitId + Pricing snapshot)  
+- `ha_cartItems` / `ha_cartId` / `ha_cartExpiresAt` — legacy؛ پاک‌سازی هنگام hydrate QuoteCart  
+- `ha_sessionToken` (آماده فاز API Ordering پس از alignment)  
 - `ha_accessToken` / `ha_user` / `ha_isProfileComplete`  
 
 ---

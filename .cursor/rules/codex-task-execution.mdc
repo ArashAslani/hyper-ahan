@@ -1,0 +1,23 @@
+---
+description: Execute one Codex-generated Frontend task with minimum context
+globs:
+alwaysApply: true
+---
+
+# Codex Task Execution
+
+- The selected Task is the execution authority.
+- Locked central documents referenced by the Task are business and product authority.
+- Frontend Tasks live under `Docs/Tasks/Front/`; execute only the explicitly selected Task.
+- Read only `Required Context` initially. Do not scan all `Docs/` or the repository.
+- Implement only `Scope`; respect `Out of Scope`.
+- Do not infer business behavior or perform unrelated refactoring, cleanup, or comments.
+- Reuse existing components, patterns, design-system rules, and architecture; do not create a duplicate component when a suitable existing component exists.
+- Make the minimum correct diff.
+- Respect `Model Tier: DEFAULT | STRONG`; use `DEFAULT` unless Codex explicitly assigns `STRONG`.
+- Apply only relevant production gates: TypeScript, build, lint, responsive/mobile behavior, accessibility, loading/error/empty states, performance, SEO/rendering, API contract, and design-system consistency.
+- Run the Task `Verification` and do not claim completion when it fails.
+
+Stop and report exactly one of:
+
+`MISSING_DECISION` · `DOCUMENT_CONFLICT` · `IMPLEMENTATION_DRIFT`

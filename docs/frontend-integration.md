@@ -1,5 +1,17 @@
 # مستند هم‌ترازی فرانت React با بک‌اند HyperAhan
 
+> ## ⚠️ OBSOLETE / HISTORICAL — variant browse & Ordering cart
+>
+> Sections that describe **catalog variant browse**, **`productVariantId`**, and **Ordering cart add** (`POST /api/ordering/cart/items`) are **HISTORICAL** relative to the current Catalog model (Product + OrderUnit, no public Variant controllers).
+>
+> **Do not implement** fake SKU/Variant mapping or Ordering cart calls from the storefront until platform alignment.
+>
+> **Current source of truth for storefront:**
+> - [`docs/docs/frontend/01-Frontend-API-Contracts.md`](docs/frontend/01-Frontend-API-Contracts.md)
+> - [`docs/docs/frontend/04-Pricing-Frontend-Architecture.md`](docs/frontend/04-Pricing-Frontend-Architecture.md) §5.2 gap + temporary **QuoteCart** approach
+>
+> Auth, blog, slider, and file sections below may still be useful; treat cart/variant flows as obsolete.
+
 > مخاطب: تیم/ایجنت React برای اتصال فرانت به API واقعی همین ریپو.  
 > وضعیت بک‌اند: [`project-state.md`](project-state.md) · محصول: [`mvp-ahanalat.md`](mvp-ahanalat.md)  
 > **کاتالوگ (منو، فیلتر، محصولات):** [`frontend-catalog-integration.md`](frontend-catalog-integration.md)  
@@ -16,8 +28,8 @@
 ## ۱. هدف و محدوده
 
 ### هستهٔ خرید (مسیر اجباری MVP)
-- کاتالوگ واریانت (browse/filter) + جزئیات محصول مادر
-- سبد با قفل قیمت ۳۰ دقیقه‌ای (`productVariantId`)
+- ~~کاتالوگ واریانت (browse/filter)~~ **HISTORICAL** — Catalog فعلی: Product + OrderUnit
+- ~~سبد با قفل قیمت ۳۰ دقیقه‌ای (`productVariantId`)~~ **HISTORICAL** — تا alignment: QuoteCart موقت (نگاه کنید به `04` §5.2)
 - OTP + JWT مشتری
 - پروفایل + آدرس تحویل
 - ثبت سفارش کارشناسی + توافق‌نامه
@@ -161,7 +173,7 @@ flowchart TD
 | بازار (قابل‌خرید) | `/products` یا `/variants` | خیر | **`GET /api/catalog/variants?searchTerm=`** |
 | جزئیات محصول | `/products/:slug` | خیر | **`GET /api/catalog/products/by-slug/{slug}`** (ترجیحی) یا `{id}` |
 | دسته محصولات | `/products/category/:categorySlug` | خیر | `GET /api/catalog/products/by-category-slug/{slug}` |
-| سبد | `/cart` | خیر | cart با `productVariantId` |
+| سبد | `/cart` | خیر | **HISTORICAL:** Ordering cart + `productVariantId` — storefront uses QuoteCart until alignment |
 | بلاگ لیست | `/blog` | خیر | `GET /api/blog/posts/search` |
 | بلاگ جزئیات | `/blog/:slug` | خیر | `GET /api/blog/posts/by-slug/{slug}` |
 | ورود OTP | `/auth` | خیر | otp send/verify |
@@ -178,13 +190,15 @@ flowchart TD
 
 ## ۵. فلوی خرید (اجباری)
 
-1. بدون لاگین: browse واریانت → افزودن با `productVariantId` + `sessionToken` (UUID کلاینت).
+> **HISTORICAL / OBSOLETE for current Catalog:** steps that assume variant browse + Ordering cart `productVariantId`. Current FE: Pricing quote → temporary QuoteCart. See `docs/docs/frontend/04-Pricing-Frontend-Architecture.md` §5.2.
+
+1. ~~بدون لاگین: browse واریانت → افزودن با `productVariantId` + `sessionToken`~~ **HISTORICAL**
 2. تسویه → OTP → ذخیره `accessToken` (~۷ روز)، نقش JWT: `Customer`.
 3. اگر `isProfileComplete === false` → `POST /api/user/me/profile` (حقیقی: `nationalId` الزامی).
 4. حداقل یک آدرس؛ `deliveryAddressId` را برای submit نگه دارید.
 5. چک‌باکس توافق‌نامه → فقط با تیک: `agreementAccepted: true`.  
    متن توافق‌نامه **ثابت سمت فرانت**؛ بک‌اند فقط `Agreement:Version = "v1"` را ذخیره می‌کند.
-6. `POST /api/ordering/orders` با `cartId` + `deliveryAddressId` + `agreementAccepted`.
+6. `POST /api/ordering/orders` با `cartId` + `deliveryAddressId` + `agreementAccepted` — **blocked** until cart alignment (no FE-invented variant IDs).
 7. پیام: «سفارش ثبت شد؛ کارشناس با شما تماس می‌گیرد.» سپس سبد را از storage پاک کنید.
 8. پیگیری در `/orders`.
 
@@ -202,11 +216,13 @@ flowchart TD
 
 ## ۶. کاتالوگ
 
-> **سند کامل منو / فیلتر / browse / جزئیات / ادمین:** [`frontend-catalog-integration.md`](frontend-catalog-integration.md)
+> **HISTORICAL:** variant-as-sellable-unit and `productVariantId` mapping below are obsolete for the current Catalog public API (Product + OrderUnit). Prefer [`docs/docs/frontend/01-Frontend-API-Contracts.md`](docs/frontend/01-Frontend-API-Contracts.md) and [`02-Catalog-Frontend-Architecture.md`](docs/frontend/02-Catalog-Frontend-Architecture.md).
+>
+> **سند کامل منو / فیلتر / browse / جزئیات / ادمین (legacy notes):** [`frontend-catalog-integration.md`](frontend-catalog-integration.md)
 
-**واحد فروش = واریانت.** محصول مادر مستقیم به سبد نمی‌رود.
+~~**واحد فروش = واریانت.** محصول مادر مستقیم به سبد نمی‌رود.~~ **HISTORICAL**
 
-### نام فیلد واریانت (مهم)
+### نام فیلد واریانت (مهم) — HISTORICAL
 
 | منبع | فیلد GUID واریانت |
 |---|---|
@@ -215,7 +231,7 @@ flowchart TD
 | `GET /api/catalog/products/{id}` → `variants[]` | **`id`** (همان GUID) |
 | cart / order | **`productVariantId`** |
 
-از جزئیات محصول، `variants[].id` را به‌عنوان `productVariantId` به سبد بفرستید.
+~~از جزئیات محصول، `variants[].id` را به‌عنوان `productVariantId` به سبد بفرستید.~~ **Do not invent this mapping in FE.**
 
 ### Lookups (عمومی)
 
@@ -517,7 +533,9 @@ Seed ندارد. **اولویت ماژول = SEO** (URL با slug، پیش‌ن�
 
 ## ۱۱. سبد (عمومی — بدون JWT)
 
-### `POST /api/ordering/cart/items`
+> **HISTORICAL / OBSOLETE for storefront:** Ordering cart requires `productVariantId`. Current Catalog has no Variant browse. **Do not call** these endpoints from FE until platform alignment. Temporary approach: **QuoteCart** + Pricing calculate — see `docs/docs/frontend/04-Pricing-Frontend-Architecture.md` §5.2.
+
+### `POST /api/ordering/cart/items` — HISTORICAL contract
 ```json
 {
   "cartId": null,
@@ -527,7 +545,7 @@ Seed ندارد. **اولویت ماژول = SEO** (URL با slug، پیش‌ن�
 }
 ```
 - یکی از `cartId` یا `sessionToken` الزامی
-- `productVariantId` الزامی (نه `productId`)
+- `productVariantId` الزامی (نه `productId`) — **gap vs Catalog Product/OrderUnit**
 - قیمت لحظهٔ افزودن قفل می‌شود؛ تکرار همان واریانت فقط `quantity` را جمع می‌کند
 - TTL: ۳۰ دقیقه (`expiresAt`)
 
@@ -638,18 +656,20 @@ Seed ندارد. **اولویت ماژول = SEO** (URL با slug، پیش‌ن�
 
 | کلید | توضیح |
 |---|---|
-| `ha_sessionToken` | UUID پایدار سبد ناشناس |
-| `ha_cartId` | بعد از اولین add |
-| `ha_cartExpiresAt` | ISO از پاسخ سبد |
+| `ha_quote_cart_v1` | **Current:** temporary QuoteCart (productId + orderUnitId + Pricing snapshot) |
+| `ha_sessionToken` | **HISTORICAL / future Ordering:** UUID سبد ناشناس |
+| `ha_cartId` | **HISTORICAL / future Ordering:** بعد از اولین add |
+| `ha_cartExpiresAt` | **HISTORICAL / future Ordering:** ISO از پاسخ سبد |
+| `ha_cartItems` | **Legacy mock cart** — cleared on QuoteCart hydrate; do not write |
 | `ha_accessToken` | JWT مشتری |
 | `ha_userId` | از verify |
 | `ha_isProfileComplete` | از verify / GET /me |
 | `ha_adminToken` | فقط پنل ادمین |
 
 رفتار:
-- قبل از add: اگر `sessionToken` نیست بسازید
+- ~~قبل از add: اگر `sessionToken` نیست بسازید~~ **HISTORICAL** (Ordering cart frozen)
 - بعد از verify: اگر پروفایل ناقص → `/me/profile`
-- بعد از submit موفق: `cartId` / `expiresAt` را پاک کنید؛ `sessionToken` می‌تواند بماند
+- بعد از submit موفق: cart storage را پاک کنید
 - روی `401`: توکن را پاک → `/auth`
 
 ---
@@ -657,13 +677,13 @@ Seed ندارد. **اولویت ماژول = SEO** (URL با slug، پیش‌ن�
 ## ۱۴. چک‌لیست پذیرش فرانت
 
 ### خرید
-- [ ] Browse با `GET /api/catalog/variants` و فیلتر Category/Brand/Factory/Size/Grade
-- [ ] جزئیات محصول: انتخاب `variants[].id` → add با `productVariantId`
-- [ ] سبد: قیمت قفل + شمارش معکوس تا `expiresAt`
+- [ ] ~~Browse با `GET /api/catalog/variants`~~ **HISTORICAL** — use Catalog Product + OrderUnit APIs
+- [ ] ~~جزئیات محصول: `variants[].id` → `productVariantId`~~ **HISTORICAL / frozen** — QuoteCart until alignment
+- [ ] سبد: QuoteCart + Pricing snapshot (re-quote on qty); no FE-invented variants
 - [ ] OTP + ذخیره JWT
 - [ ] پروفایل + آدرس
 - [ ] توافق‌نامه بدون تیک، submit را بلاک می‌کند
-- [ ] سفارش `Submitted` + پیام کارشناس
+- [ ] سفارش `Submitted` + پیام کارشناس — **blocked** on Ordering cart until alignment
 - [ ] «سفارش‌های من» تا `Completed` و حمل
 - [ ] خطا از `errors[].message`؛ proxy بدون CORS error
 
