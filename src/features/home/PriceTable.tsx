@@ -16,8 +16,10 @@ const trendConfig = {
 } as const;
 
 export function PriceTable({ prices }: PriceTableProps) {
+  if (prices.length === 0) return null;
+
   return (
-    <section id="daily-prices" className="scroll-mt-[var(--topbar-h)] px-4 py-4">
+    <section id="daily-prices" className="home-section-enter scroll-mt-[var(--topbar-h)] px-4 py-4" style={{ animationDelay: "140ms" }}>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-bold text-text">قیمت روز</h2>
         <Link
@@ -33,7 +35,7 @@ export function PriceTable({ prices }: PriceTableProps) {
           return (
             <li
               key={item.id}
-              className="rounded-[var(--radius-lg)] bg-surface p-3 shadow-[var(--shadow-soft)]"
+              className="home-card-lift rounded-[var(--radius-lg)] bg-surface p-3 shadow-[var(--shadow-soft)]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">

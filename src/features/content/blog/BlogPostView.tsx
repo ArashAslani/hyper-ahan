@@ -2,8 +2,9 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faArrowRight, faCalendar, faClock, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { routes } from "@/lib/routes";
-import type { BlogPost, BlogPostSummary, Product } from "@/types";
-import { ProductCard } from "@/shared/ui/ProductCard";
+import type { BlogPost, BlogPostSummary } from "@/types";
+import type { CatalogProduct } from "@/types/catalog";
+import { CatalogProductCard } from "@/features/catalog/CatalogProductCard";
 import { AppImage } from "@/shared/ui/AppImage";
 import { BlogBreadcrumb } from "./BlogBreadcrumb";
 import { BlogTableOfContents } from "./BlogTableOfContents";
@@ -16,7 +17,7 @@ import { formatBlogDate } from "@/lib/blogFormat";
 type BlogPostViewProps = {
   post: BlogPost;
   related: BlogPostSummary[];
-  relatedProducts: Product[];
+  relatedProducts: CatalogProduct[];
   previous: BlogPostSummary | null;
   next: BlogPostSummary | null;
 };
@@ -166,7 +167,7 @@ export function BlogPostView({ post, related, relatedProducts, previous, next }:
             <h2 className="mb-6 text-xl font-bold text-text md:text-2xl">محصولات مرتبط</h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {relatedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <CatalogProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>

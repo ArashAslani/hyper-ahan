@@ -29,12 +29,20 @@ export default async function BlogPage({ searchParams }: PageProps) {
   const categorySlug = category?.trim() || undefined;
   const pageNumber = Number(page) > 0 ? Number(page) : 1;
 
+  const emptyResult = {
+    items: [],
+    total: 0,
+    page: pageNumber,
+    pageSize: 6,
+    totalPages: 1,
+  };
+
   const [result, categories, featured, latest, popular] = await Promise.all([
-    blogService.list({ page: pageNumber, q: query, categorySlug }),
-    blogService.getCategories(),
-    blogService.getFeatured(),
-    blogService.getLatest(),
-    blogService.getMostVisited(),
+    blogService.list({ page: pageNumber, q: query, categorySlug }).catch(() => emptyResult),
+    blogService.getCategories().catch(() => []),
+    blogService.getFeatured().catch(() => null),
+    blogService.getLatest().catch(() => []),
+    blogService.getMostVisited().catch(() => []),
   ]);
 
   return (

@@ -27,7 +27,11 @@ export function TopBar() {
             type="button"
             onClick={() => setMenuOpen(true)}
             aria-label="باز کردن منو"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-text"
+            aria-expanded={menuOpen}
+            aria-controls="main-nav-drawer"
+            className={`flex h-11 w-11 items-center justify-center rounded-full text-text transition duration-200 hover:bg-bg active:scale-95 ${
+              menuOpen ? "rotate-90 text-accent" : ""
+            }`}
           >
             <FontAwesomeIcon icon={faBars} />
           </button>
@@ -42,21 +46,21 @@ export function TopBar() {
         <div className="flex items-center gap-1">
           <a
             href={routes.phone.call}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-accent"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-accent transition duration-200 hover:bg-accent/10 active:scale-95"
             aria-label="تماس"
           >
             <FontAwesomeIcon icon={faPhoneAlt} />
           </a>
           <Link
             href={routes.search}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-text"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-text transition duration-200 hover:bg-bg active:scale-95"
             aria-label="جستجو"
           >
             <FontAwesomeIcon icon={faSearch} />
           </Link>
           <Link
             href={routes.cart}
-            className="relative flex h-11 w-11 items-center justify-center rounded-full text-text"
+            className="relative flex h-11 w-11 items-center justify-center rounded-full text-text transition duration-200 hover:bg-bg active:scale-95"
             aria-label="سبد خرید"
           >
             <FontAwesomeIcon

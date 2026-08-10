@@ -38,15 +38,15 @@ const trustItems: TrustItem[] = [
 
 export function WhyHyperAhan() {
   return (
-    <section className="px-4 py-6">
+    <section className="home-section-enter px-4 py-6" style={{ animationDelay: "260ms" }}>
       <h2 className="mb-4 text-lg font-bold text-text">چرا هایپر آهن؟</h2>
       <div className="grid grid-cols-2 gap-3">
         {trustItems.map((item) => (
           <div
             key={item.title}
-            className="rounded-[var(--radius-lg)] bg-surface p-4 text-center shadow-[var(--shadow-soft)]"
+            className="home-card-lift rounded-[var(--radius-lg)] bg-surface p-4 text-center shadow-[var(--shadow-soft)]"
           >
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-xl text-accent">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-xl text-accent transition duration-200">
               <FontAwesomeIcon icon={item.icon} />
             </span>
             <h3 className="mt-3 text-sm font-bold text-text">{item.title}</h3>

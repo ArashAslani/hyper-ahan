@@ -49,7 +49,7 @@ function RecursiveCategoryItem({
         style={{ paddingRight: `${paddingRight + 16}px` }}
       >
         <Link
-          href={routes.products.category(item.slug)}
+          href={routes.catalog.category(item.id)}
           onClick={onClose}
           className="flex w-[60%] items-center gap-2 py-3 text-gray-800 hover:text-accent"
         >
@@ -81,7 +81,7 @@ function RecursiveCategoryItem({
           <div className="bg-gray-50">
             {item.children.map((child) => (
               <RecursiveCategoryItem
-                key={child.slug}
+                key={child.id}
                 item={child}
                 onClose={onClose}
                 level={level + 1}
@@ -109,13 +109,13 @@ export function MobileMenu({
   categories,
   weightCalcItems,
 }: MobileMenuProps) {
-  const [openMainCategoryId, setOpenMainCategoryId] = useState<number | null>(
+  const [openMainCategoryId, setOpenMainCategoryId] = useState<string | null>(
     null,
   );
   const [isWeightCalcOpen, setIsWeightCalcOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
-  const toggleMainCategory = (id: number) => {
+  const toggleMainCategory = (id: string) => {
     setOpenMainCategoryId((prev) => (prev === id ? null : id));
   };
 
@@ -165,12 +165,12 @@ export function MobileMenu({
           </div>
           {categories.map((category) => (
             <RecursiveCategoryItem
-              key={category.id ?? category.slug}
+              key={category.id}
               item={category}
               onClose={onClose}
               level={0}
               isOpen={openMainCategoryId === category.id}
-              onToggle={() => toggleMainCategory(category.id ?? 0)}
+              onToggle={() => toggleMainCategory(category.id)}
             />
           ))}
         </div>

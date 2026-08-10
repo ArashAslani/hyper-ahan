@@ -11,12 +11,12 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
   if (posts.length === 0) return null;
 
   return (
-    <section className="px-4 py-6">
+    <section className="home-section-enter px-4 py-6" style={{ animationDelay: "220ms" }}>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-text">آخرین مقالات</h2>
         <Link
           href={routes.blog.list}
-          className="text-sm font-medium text-accent"
+          className="text-sm font-medium text-accent transition duration-200 hover:opacity-80"
         >
           همه
         </Link>
@@ -28,7 +28,7 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
       </div>
       <Link
         href={routes.blog.list}
-        className="mt-4 flex min-h-[var(--touch-min)] items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-bold text-text active:scale-95"
+        className="mt-4 flex min-h-[var(--touch-min)] items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-bold text-text transition duration-200 hover:border-accent hover:text-accent active:scale-95"
       >
         مشاهده همه مقالات
       </Link>

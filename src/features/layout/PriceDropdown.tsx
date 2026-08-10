@@ -3,10 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faFolder,
-  faFile,
-} from "@fortawesome/free-solid-svg-icons";
+import { faFolder, faFile } from "@fortawesome/free-solid-svg-icons";
 import { routes } from "@/lib/routes";
 import type { CategoryNode } from "@/types";
 
@@ -16,9 +13,9 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
       {items.map((item) => {
         const hasChildren = item.children && item.children.length > 0;
         return (
-          <div key={item.slug} className="break-inside-avoid">
+          <div key={item.id} className="break-inside-avoid">
             <Link
-              href={routes.products.category(item.slug)}
+              href={routes.catalog.category(item.id)}
               className="mb-2 flex items-center gap-2 border-b pb-1 font-semibold text-gray-800 hover:text-accent"
             >
               <FontAwesomeIcon
@@ -30,9 +27,9 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
             {hasChildren ? (
               <ul className="space-y-1 pr-4">
                 {item.children.map((child) => (
-                  <li key={child.slug} className="text-sm">
+                  <li key={child.id} className="text-sm">
                     <Link
-                      href={routes.products.category(child.slug)}
+                      href={routes.catalog.category(child.id)}
                       className="flex items-center gap-2 text-gray-600 hover:text-accent"
                     >
                       <FontAwesomeIcon
@@ -44,9 +41,9 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
                     {child.children && child.children.length > 0 ? (
                       <ul className="mt-1 space-y-1 pr-6">
                         {child.children.map((grandChild) => (
-                          <li key={grandChild.slug}>
+                          <li key={grandChild.id}>
                             <Link
-                              href={routes.products.category(grandChild.slug)}
+                              href={routes.catalog.category(grandChild.id)}
                               className="flex items-center gap-2 text-sm text-gray-500 hover:text-accent"
                             >
                               <FontAwesomeIcon
@@ -64,7 +61,7 @@ function MultiColumnTree({ items }: { items: CategoryNode[] }) {
               </ul>
             ) : (
               <Link
-                href={routes.products.category(item.slug)}
+                href={routes.catalog.category(item.id)}
                 className="mt-1 block text-gray-600 hover:text-accent"
               >
                 مشاهده محصولات
@@ -94,7 +91,7 @@ export function PriceDropdown({ categories }: PriceDropdownProps) {
         type="button"
         className="py-2 font-medium text-gray-700 hover:text-accent"
       >
-        قیمت روز محصولات
+        کاتالوگ محصولات
       </button>
       <div className="invisible absolute right-0 z-30 mt-2 w-[800px] rounded-lg bg-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
         <div className="flex overflow-hidden rounded-lg border">
@@ -102,7 +99,7 @@ export function PriceDropdown({ categories }: PriceDropdownProps) {
             <ul className="py-2">
               {categories.map((cat) => (
                 <li
-                  key={cat.id ?? cat.slug}
+                  key={cat.id}
                   onMouseEnter={() => setActiveCategory(cat)}
                   className={`cursor-pointer px-4 py-2 transition ${
                     resolvedCategory.id === cat.id
@@ -119,7 +116,13 @@ export function PriceDropdown({ categories }: PriceDropdownProps) {
             <h4 className="mb-3 border-b pb-2 font-bold text-gray-800">
               {resolvedCategory.name}
             </h4>
-            <MultiColumnTree items={resolvedCategory.children} />
+            <MultiColumnTree
+              items={
+                resolvedCategory.children.length
+                  ? resolvedCategory.children
+                  : [resolvedCategory]
+              }
+            />
           </div>
         </div>
       </div>
