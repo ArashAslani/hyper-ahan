@@ -1,22 +1,39 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { CatalogPlpErrorActions } from "@/features/catalog/CatalogPlpErrorActions";
 import { CatalogProductList } from "@/features/catalog/CatalogProductList";
 import { TrackCategoryVisit } from "@/features/catalog/TrackCategoryVisit";
 import { catalogService } from "@/services/catalogService";
+import {
+  decodeCatalogPlpUrl,
+  toCatalogPlpQuery,
+  toUrlSearchParams,
+  type CatalogPlpSearchParams,
+} from "@/lib/catalogPlpQuery";
 import { routes } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<CatalogPlpSearchParams>;
 };
 
-export default async function CatalogCategoryPage({ params }: PageProps) {
-  const { id } = await params;
+export default async function CatalogCategoryPage({
+  params,
+  searchParams,
+}: PageProps) {
+  const [{ id }, rawSearchParams] = await Promise.all([params, searchParams]);
+  const pathname = routes.catalog.category(id);
+  const urlState = decodeCatalogPlpUrl(toUrlSearchParams(rawSearchParams));
+  const query = toCatalogPlpQuery(id, urlState);
 
-  const [category, products, factories] = await Promise.all([
-    catalogService.getCategoryById(id).catch(() => null),
-    catalogService.getProductsByCategory(id).catch(() => []),
+  const [category, plpOutcome, factories] = await Promise.all([
+    catalogService.getCategoryById(id),
+    catalogService
+      .queryCategoryPlp(query)
+      .then((result) => ({ result, error: null }))
+      .catch((error: unknown) => ({ result: null, error })),
     catalogService.getFactories().catch(() => []),
   ]);
 
@@ -43,12 +60,28 @@ export default async function CatalogCategoryPage({ params }: PageProps) {
           </div>
         </div>
       ) : null}
-      <CatalogProductList
-        title={category.name}
-        products={products}
-        factories={factories}
-        emptyDescription="محصولی در این دسته نیست."
-      />
+      {plpOutcome.result ? (
+        <CatalogProductList
+          title={category.name}
+          result={plpOutcome.result}
+          factories={factories}
+          urlState={urlState}
+          pathname={pathname}
+          emptyDescription="محصولی با این فیلترها در این دسته نیست."
+        />
+      ) : (
+        <section className="px-4 py-4">
+          <h1 className="text-xl font-bold text-text">{category.name}</h1>
+          <CatalogPlpErrorActions
+            resetHref={pathname}
+            message={
+              plpOutcome.error instanceof Error
+                ? plpOutcome.error.message
+                : undefined
+            }
+          />
+        </section>
+      )}
     </div>
   );
 }

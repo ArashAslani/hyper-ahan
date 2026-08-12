@@ -4,10 +4,16 @@ import {
   toComparisonUnit,
   toRegistrationUnit,
 } from "@/lib/catalogUnitMapping";
+import {
+  mapCatalogPlpResponse,
+  type CategoryPlpResponseDto,
+} from "@/lib/catalogPlpMapping";
 import type {
   CatalogCategory,
   CatalogFactory,
   CatalogOrderUnit,
+  CatalogPlpQuery,
+  CatalogPlpResult,
   CatalogProduct,
   CatalogSpecValue,
   OutOfStockDisplayPolicy,
@@ -274,6 +280,18 @@ export const catalogService = {
       { next: { revalidate: 60 } },
     );
     return dtos.map(toProduct);
+  },
+
+  async queryCategoryPlp(query: CatalogPlpQuery): Promise<CatalogPlpResult> {
+    const dto = await apiFetch<CategoryPlpResponseDto<ProductDto>>(
+      `/api/catalog/categories/${encodeURIComponent(query.categoryId)}/plp`,
+      {
+        method: "POST",
+        body: JSON.stringify(query),
+        cache: "no-store",
+      },
+    );
+    return mapCatalogPlpResponse(dto, toProduct);
   },
 
   async getProductsByFactory(factoryId: string): Promise<CatalogProduct[]> {

@@ -133,6 +133,96 @@ export type CatalogFactory = {
   isActive: boolean;
 };
 
+// ─── Catalog PLP query ───────────────────────────────────────────────
+
+export type CatalogPlpSelectionFilter = {
+  definitionId: string;
+  optionIds: string[];
+};
+
+export type CatalogPlpNumericRangeFilter = {
+  definitionId: string;
+  minimum: number;
+  maximum: number;
+};
+
+export type CatalogPlpBooleanFilter = {
+  definitionId: string;
+  value: boolean;
+};
+
+export type CatalogPlpQuery = {
+  categoryId: string;
+  page: number;
+  pageSize: number;
+  sort: string;
+  factoryIds?: string[];
+  selectionFilters?: CatalogPlpSelectionFilter[];
+  numericRangeFilters?: CatalogPlpNumericRangeFilter[];
+  booleanFilters?: CatalogPlpBooleanFilter[];
+};
+
+export type CatalogPlpFactoryFacet = {
+  order: number;
+  options: Array<{ factoryId: string; label: string }>;
+};
+
+export type CatalogPlpNumericFacet = {
+  minimum: number;
+  maximum: number;
+  step: number | null;
+  unitCode: string | null;
+  unitLabel: string | null;
+};
+
+export type CatalogPlpSelectionFacet = {
+  options: Array<{
+    optionId: string;
+    label: string;
+    displayOrder: number;
+  }>;
+};
+
+export type CatalogPlpSpecificationFacet = {
+  definitionId: string;
+  label: string;
+  dataType: SpecDataType;
+  order: number;
+  numeric: CatalogPlpNumericFacet | null;
+  selection: CatalogPlpSelectionFacet | null;
+  booleanCapability: boolean | null;
+};
+
+export type CatalogPlpSortOption = {
+  key: string;
+  label: string;
+  isDefault: boolean;
+  isAvailable: boolean;
+};
+
+export type CatalogPlpMetadata = {
+  categoryId: string;
+  isLeafCategory: boolean;
+  factoryFacet: CatalogPlpFactoryFacet | null;
+  specificationFacets: CatalogPlpSpecificationFacet[];
+  sortOptions: CatalogPlpSortOption[];
+};
+
+export type CatalogPlpProductPage = {
+  items: CatalogProduct[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+};
+
+export type CatalogPlpResult = {
+  metadata: CatalogPlpMetadata;
+  products: CatalogPlpProductPage;
+};
+
 // ─── Search ──────────────────────────────────────────────────────────
 
 export type SearchContentType = 1 | 2 | 3 | 4;

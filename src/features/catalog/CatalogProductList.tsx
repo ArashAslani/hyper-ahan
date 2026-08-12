@@ -1,56 +1,72 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSliders } from "@fortawesome/free-solid-svg-icons";
+import { useMemo } from "react";
+import { CatalogPlpControls } from "@/features/catalog/CatalogPlpControls";
 import { CatalogProductCard } from "@/features/catalog/CatalogProductCard";
-import { BottomSheet } from "@/shared/ui/BottomSheet";
-import { Fab } from "@/shared/ui/Fab";
-import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
-import type { CatalogFactory, CatalogProduct } from "@/types/catalog";
+import type { CatalogPlpUrlState } from "@/lib/catalogPlpQuery";
+import type {
+  CatalogFactory,
+  CatalogPlpMetadata,
+  CatalogPlpProductPage,
+  CatalogProduct,
+} from "@/types/catalog";
 
 type CatalogProductListProps = {
   title: string;
-  products: CatalogProduct[];
+  result?: {
+    metadata: CatalogPlpMetadata;
+    products: CatalogPlpProductPage;
+  };
+  /** Legacy factory page input; category PLP uses `result`. */
+  products?: CatalogProduct[];
   factories: CatalogFactory[];
+  urlState?: CatalogPlpUrlState;
+  pathname?: string;
   emptyDescription?: string;
 };
 
 export function CatalogProductList({
   title,
+  result,
   products,
   factories,
+  urlState,
+  pathname,
   emptyDescription = "محصولی در این فهرست نیست.",
 }: CatalogProductListProps) {
-  const [factoryId, setFactoryId] = useState<string>("all");
-  const [sheetOpen, setSheetOpen] = useState(false);
-
+  const items = result?.products.items ?? products ?? [];
   const factoryMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const f of factories) map.set(f.id, f.name);
+    for (const option of result?.metadata.factoryFacet?.options ?? []) {
+      map.set(option.factoryId, option.label);
+    }
     return map;
-  }, [factories]);
-
-  const usedFactories = useMemo(() => {
-    const ids = new Set(products.map((p) => p.factoryId));
-    return factories.filter((f) => ids.has(f.id));
-  }, [products, factories]);
-
-  const filtered =
-    factoryId === "all"
-      ? products
-      : products.filter((p) => p.factoryId === factoryId);
+  }, [factories, result?.metadata.factoryFacet]);
 
   return (
     <div className="px-4 py-4">
       <h1 className="mb-3 text-xl font-bold text-text">{title}</h1>
 
-      {filtered.length === 0 ? (
-        <EmptyState title="محصولی یافت نشد" description={emptyDescription} icon="📦" />
+      {result && urlState && pathname ? (
+        <CatalogPlpControls
+          metadata={result.metadata}
+          productPage={result.products}
+          urlState={urlState}
+          pathname={pathname}
+        />
+      ) : null}
+
+      {items.length === 0 ? (
+        <EmptyState
+          title="محصولی یافت نشد"
+          description={emptyDescription}
+          icon="📦"
+        />
       ) : (
         <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {filtered.map((product) => (
+          {items.map((product) => (
             <CatalogProductCard
               key={product.id}
               product={product}
@@ -59,47 +75,6 @@ export function CatalogProductList({
           ))}
         </div>
       )}
-
-      {usedFactories.length > 1 ? (
-        <>
-          <Fab onClick={() => setSheetOpen(true)} aria-label="فیلتر">
-            <FontAwesomeIcon icon={faSliders} />
-          </Fab>
-          <BottomSheet
-            isOpen={sheetOpen}
-            onClose={() => setSheetOpen(false)}
-            title="فیلتر کارخانه"
-          >
-            <div className="space-y-2">
-              <Button
-                type="button"
-                variant={factoryId === "all" ? "accent" : "outline"}
-                className="w-full"
-                onClick={() => {
-                  setFactoryId("all");
-                  setSheetOpen(false);
-                }}
-              >
-                همه کارخانه‌ها
-              </Button>
-              {usedFactories.map((f) => (
-                <Button
-                  key={f.id}
-                  type="button"
-                  variant={factoryId === f.id ? "accent" : "outline"}
-                  className="w-full"
-                  onClick={() => {
-                    setFactoryId(f.id);
-                    setSheetOpen(false);
-                  }}
-                >
-                  {f.name}
-                </Button>
-              ))}
-            </div>
-          </BottomSheet>
-        </>
-      ) : null}
     </div>
   );
 }

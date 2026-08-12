@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
@@ -17,20 +17,101 @@ export function BottomSheet({
   title,
   children,
 }: BottomSheetProps) {
+  const titleId = useId();
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    restoreFocusRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusFrame = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !sheetRef.current) return;
+
+      const focusable = Array.from(
+        sheetRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("hidden"));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        sheetRef.current.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      } else if (!sheetRef.current.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      restoreFocusRef.current?.focus();
+      restoreFocusRef.current = null;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center">
       <button
         type="button"
         className="absolute inset-0 bg-primary/40"
         aria-label="بستن"
+        tabIndex={-1}
         onClick={onClose}
       />
-      <div className="animate-sheet-up relative z-10 max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-t-[var(--radius-lg)] bg-surface p-4 shadow-[var(--shadow-card)]">
+      <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        aria-label={title ? undefined : "پنجره جزئیات"}
+        tabIndex={-1}
+        className="animate-sheet-up relative z-10 max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-t-[var(--radius-lg)] bg-surface p-4 shadow-[var(--shadow-card)]"
+      >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text">{title}</h2>
+          <h2
+            id={title ? titleId : undefined}
+            className="text-lg font-bold text-text"
+          >
+            {title}
+          </h2>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             className="flex h-11 w-11 items-center justify-center rounded-full text-text-muted hover:bg-bg"

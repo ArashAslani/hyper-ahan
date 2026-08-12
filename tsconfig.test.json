@@ -8,8 +8,11 @@
   "include": [
     "src/lib/importantSpecifications.test.ts",
     "src/lib/catalogUnitLabelMapper.test.ts",
+    "src/lib/catalogPlpQuery.test.ts",
     "src/lib/importantSpecifications.ts",
-    "src/lib/catalogUnitMapping.ts"
+    "src/lib/catalogUnitMapping.ts",
+    "src/lib/catalogPlpMapping.ts",
+    "src/lib/catalogPlpQuery.ts"
   ],
   "exclude": ["node_modules"]
 }
