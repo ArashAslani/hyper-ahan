@@ -293,6 +293,7 @@ function AddToCartSheetBody({
 
   const metaChips = useMemo(() => {
     if (!selectedUnit) return null;
+    const registrationLabel = product.registrationUnit.label.trim();
     const maxLabel =
       selectedUnit.maximumOrderQuantity == null
         ? "بدون سقف"
@@ -301,8 +302,8 @@ function AddToCartSheetBody({
       <div className="mt-2 flex flex-wrap gap-2 text-xs text-text-muted">
         <span className="rounded-full bg-bg px-2 py-1">
           هر ۱ {selectedUnit.unit} ={" "}
-          {formatFaNumber(selectedUnit.conversionFactor)}{" "}
-          {product.registrationUnit}
+          {formatFaNumber(selectedUnit.conversionFactor)}
+          {registrationLabel ? ` ${registrationLabel}` : ""}
         </span>
         <span className="rounded-full bg-bg px-2 py-1">
           حداقل {formatFaNumber(selectedUnit.minimumOrderQuantity)}
@@ -349,6 +350,7 @@ function AddToCartSheetBody({
       <div role="radiogroup" aria-label="واحد سفارش" className="space-y-2">
         {product.orderUnits.map((unit) => {
           const selected = unit.id === orderUnitId;
+          const registrationLabel = product.registrationUnit.label.trim();
           return (
             <button
               key={unit.id}
@@ -371,8 +373,8 @@ function AddToCartSheetBody({
                 ) : null}
               </span>
               <span className="mt-1 text-xs text-text-muted">
-                هر ۱ {unit.unit} = {formatFaNumber(unit.conversionFactor)}{" "}
-                {product.registrationUnit}
+                هر ۱ {unit.unit} = {formatFaNumber(unit.conversionFactor)}
+                {registrationLabel ? ` ${registrationLabel}` : ""}
               </span>
             </button>
           );

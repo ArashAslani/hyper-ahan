@@ -55,17 +55,60 @@ export type CatalogSpecValue = {
   value: string;
 };
 
+/** Catalog RegistrationUnit: stable code + display label. */
+export type RegistrationUnit = {
+  code: string;
+  label: string;
+};
+
+/** ComparisonUnit equals Product RegistrationUnit in PLP V1. */
+export type ComparisonUnit = {
+  code: string;
+  label: string;
+};
+
+/** Backend PLP commercial states only — never OutOfStock / PriceUpdating. */
+export type ProductCommercialState = "Purchasable" | "ContactUs";
+
+/**
+ * Bounded PLP commercial projection from Catalog+Pricing.
+ * Amount/currency/unit identity are Backend-owned; Front only formats.
+ */
+export type ProductCommercial = {
+  state: ProductCommercialState;
+  amount: number | null;
+  currency: string;
+  comparisonUnit: ComparisonUnit;
+  priceUpdatedAt: string | null;
+};
+
+/**
+ * Catalog-authoritative display-ready PLP specification (label/value).
+ * Selection, ordering, and wording are Backend-owned.
+ */
+export type ImportantSpecification = {
+  label: string;
+  value: string;
+};
+
 export type CatalogProduct = {
   id: string;
   displayName: string;
   categoryId: string;
   factoryId: string;
-  registrationUnit: string;
+  registrationUnit: RegistrationUnit;
   saleMode: SaleMode;
   outOfStockDisplayPolicy: OutOfStockDisplayPolicy;
   orderUnits: CatalogOrderUnit[];
   specificationValues: CatalogSpecValue[];
   formulaTypeId: string | null;
+  /** Present on PLP list rows; omitted on PDP detail unless Backend adds it. */
+  commercial?: ProductCommercial | null;
+  /**
+   * PLP/Quick Detail important specs from list contract.
+   * Empty when absent or Backend returns none.
+   */
+  importantSpecifications: ImportantSpecification[];
 };
 
 export type SpecDefinition = {

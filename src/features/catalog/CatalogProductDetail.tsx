@@ -250,10 +250,14 @@ export function CatalogProductDetail({
                   <dd className="font-medium text-text">{row.value}</dd>
                 </div>
               ))}
-              <div className="flex justify-between gap-2">
-                <dt className="text-text-muted">واحد ثبت</dt>
-                <dd className="font-medium text-text">{product.registrationUnit}</dd>
-              </div>
+              {product.registrationUnit.label.trim() ? (
+                <div className="flex justify-between gap-2">
+                  <dt className="text-text-muted">واحد ثبت</dt>
+                  <dd className="font-medium text-text">
+                    {product.registrationUnit.label.trim()}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           )}
         </section>

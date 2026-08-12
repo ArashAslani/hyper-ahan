@@ -1,4 +1,9 @@
 import { apiFetch, ApiError } from "@/lib/api-client";
+import { mapImportantSpecifications } from "@/lib/importantSpecifications";
+import {
+  toComparisonUnit,
+  toRegistrationUnit,
+} from "@/lib/catalogUnitMapping";
 import type {
   CatalogCategory,
   CatalogFactory,
@@ -6,6 +11,9 @@ import type {
   CatalogProduct,
   CatalogSpecValue,
   OutOfStockDisplayPolicy,
+  ProductCommercial,
+  ProductCommercialState,
+  RegistrationUnit,
   SaleMode,
   SpecDataType,
   SpecDefinition,
@@ -39,17 +47,38 @@ type SpecValueDto = {
   value: string;
 };
 
+type RegistrationUnitDto = {
+  code?: string;
+  label?: string;
+};
+
+type ComparisonUnitDto = {
+  code?: string;
+  label?: string;
+};
+
+type ProductCommercialDto = {
+  state?: string;
+  amount?: number | null;
+  currency?: string;
+  comparisonUnit?: ComparisonUnitDto | null;
+  priceUpdatedAt?: string | null;
+};
+
 type ProductDto = {
   id: string;
   displayName: string;
   categoryId: string;
   factoryId: string;
-  registrationUnit: string;
+  /** Legacy string or current { code, label } RegistrationUnitDto. */
+  registrationUnit: string | RegistrationUnitDto;
   saleMode: SaleMode | number;
   outOfStockDisplayPolicy: OutOfStockDisplayPolicy | number;
   orderUnits?: OrderUnitDto[] | null;
   specificationValues?: SpecValueDto[] | null;
   formulaTypeId?: string | null;
+  commercial?: ProductCommercialDto | null;
+  importantSpecifications?: Array<{ label?: string; value?: string }> | null;
 };
 
 type SpecDefinitionDto = {
@@ -92,18 +121,52 @@ function toSpecValue(dto: SpecValueDto): CatalogSpecValue {
   };
 }
 
+function toCommercialState(raw: string | undefined): ProductCommercialState | null {
+  if (raw === "Purchasable" || raw === "ContactUs") return raw;
+  return null;
+}
+
+function toCommercial(
+  dto: ProductCommercialDto | null | undefined,
+  registrationUnit: RegistrationUnit,
+): ProductCommercial | null {
+  if (!dto) return null;
+  const state = toCommercialState(dto.state);
+  if (!state) return null;
+
+  const currency = (dto.currency ?? "").trim().toUpperCase();
+  const amount =
+    typeof dto.amount === "number" && Number.isFinite(dto.amount)
+      ? dto.amount
+      : null;
+
+  return {
+    state,
+    // Missing/invalid currency must not invent a price; UI omits numeric when currency unusable.
+    amount: state === "Purchasable" ? amount : null,
+    currency,
+    comparisonUnit: toComparisonUnit(dto.comparisonUnit, registrationUnit),
+    priceUpdatedAt: dto.priceUpdatedAt?.trim() || null,
+  };
+}
+
 function toProduct(dto: ProductDto): CatalogProduct {
+  const registrationUnit = toRegistrationUnit(dto.registrationUnit);
   return {
     id: dto.id,
     displayName: dto.displayName,
     categoryId: dto.categoryId,
     factoryId: dto.factoryId,
-    registrationUnit: dto.registrationUnit,
+    registrationUnit,
     saleMode: dto.saleMode as SaleMode,
     outOfStockDisplayPolicy: dto.outOfStockDisplayPolicy as OutOfStockDisplayPolicy,
     orderUnits: (dto.orderUnits ?? []).map(toOrderUnit),
     specificationValues: (dto.specificationValues ?? []).map(toSpecValue),
     formulaTypeId: dto.formulaTypeId ?? null,
+    commercial: toCommercial(dto.commercial, registrationUnit),
+    importantSpecifications: mapImportantSpecifications(
+      dto.importantSpecifications,
+    ),
   };
 }
 
