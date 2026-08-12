@@ -69,7 +69,7 @@ export function CatalogProductCard({
           </Button>
         ) : (
           <a href={routes.phone.call} className="flex-[1.2]">
-            <Button type="button" variant="outline" fullWidth>
+            <Button type="button" variant="accent" fullWidth>
               تماس با کارشناس
             </Button>
           </a>
