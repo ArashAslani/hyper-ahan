@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/Button";
 import { calculationToolService } from "@/services/calculationToolService";
+import {
+  bindCatalogCalculatorEntry,
+  issueCatalogNavigationContinuation,
+  mergeCalculatorHandoff,
+} from "@/lib/catalogNavigationContext";
 import { writeEngineeringPrefill } from "@/lib/engineeringPrefill";
-import { routes } from "@/lib/routes";
 import type { CalculationToolDetail, ExecuteToolResult, UiInput } from "@/types/catalog";
 
 type DynamicToolFormProps = {
@@ -14,6 +18,7 @@ type DynamicToolFormProps = {
   productId?: string | null;
   /** Optional return path; defaults to product PDP when productId is set. */
   returnPath?: string | null;
+  nav?: string | null;
 };
 
 function normalizeInputType(type: string): string {
@@ -99,8 +104,13 @@ export function DynamicToolForm({
   tool,
   productId,
   returnPath,
+  nav,
 }: DynamicToolFormProps) {
   const router = useRouter();
+
+  useEffect(() => {
+    bindCatalogCalculatorEntry(nav);
+  }, [nav]);
   const initial = useMemo(() => {
     const values: Record<string, string> = {};
     for (const input of tool.inputs) values[input.key] = "";
@@ -159,14 +169,13 @@ export function DynamicToolForm({
       formulaTypeId: result.formulaTypeId,
     });
 
-    const target =
-      returnPath?.trim() ||
-      routes.catalog.product(productId);
-    const url = new URL(target, window.location.origin);
-    url.searchParams.set("applyQty", String(result.quantity));
-    if (result.unit) url.searchParams.set("applyUnit", result.unit);
-    url.searchParams.set("openAtc", "1");
-    router.push(`${url.pathname}${url.search}`);
+    router.push(
+      mergeCalculatorHandoff(returnPath, productId, {
+        applyQty: String(result.quantity),
+        applyUnit: result.unit,
+        nav: issueCatalogNavigationContinuation(),
+      }),
+    );
   };
 
   return (

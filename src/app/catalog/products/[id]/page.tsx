@@ -2,6 +2,10 @@ import { notFound } from "next/navigation";
 import { CatalogProductDetail } from "@/features/catalog/CatalogProductDetail";
 import { catalogService } from "@/services/catalogService";
 import { calculationToolService } from "@/services/calculationToolService";
+import {
+  buildCatalogProductHref,
+  readCatalogReturnParam,
+} from "@/lib/catalogNavigationContext";
 import { routes } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
@@ -12,20 +16,21 @@ type PageProps = {
     applyQty?: string;
     applyUnit?: string;
     openAtc?: string;
+    from?: string | string[];
   }>;
 };
 
 async function resolveCalculatorHref(
   formulaTypeId: string | null,
   productId: string,
+  pdpHref: string,
 ): Promise<string | null> {
   if (!formulaTypeId) return null;
-  const returnPath = routes.catalog.product(productId);
   try {
     const slug =
       await calculationToolService.findSlugByFormulaTypeId(formulaTypeId);
     if (slug) {
-      return routes.tools.detailWithProduct(slug, productId, returnPath);
+      return routes.tools.detailWithProduct(slug, productId, pdpHref);
     }
   } catch {
     /* fall through to tools list */
@@ -39,6 +44,8 @@ export default async function CatalogProductPage({
 }: PageProps) {
   const { id } = await params;
   const sp = await searchParams;
+  const catalogFrom = readCatalogReturnParam({ from: sp.from });
+  const pdpHref = buildCatalogProductHref(id, catalogFrom);
 
   const product = await catalogService.getProductById(id).catch(() => null);
   if (!product) notFound();
@@ -46,7 +53,7 @@ export default async function CatalogProductPage({
   const [category, factory, calculatorHref] = await Promise.all([
     catalogService.getCategoryById(product.categoryId).catch(() => null),
     catalogService.getFactoryById(product.factoryId).catch(() => null),
-    resolveCalculatorHref(product.formulaTypeId, product.id),
+    resolveCalculatorHref(product.formulaTypeId, product.id, pdpHref),
   ]);
 
   const template = category?.specificationTemplateId

@@ -1,4 +1,5 @@
 import { CatalogBrowseView } from "@/features/catalog/CatalogBrowseView";
+import { DiscardCatalogNavigationOwnership } from "@/features/catalog/DiscardCatalogNavigationOwnership";
 import { catalogService } from "@/services/catalogService";
 import { calculationToolService } from "@/services/calculationToolService";
 
@@ -10,5 +11,10 @@ export default async function CatalogPage() {
     calculationToolService.list().catch(() => []),
   ]);
 
-  return <CatalogBrowseView categories={categories} tools={tools} />;
+  return (
+    <>
+      <DiscardCatalogNavigationOwnership />
+      <CatalogBrowseView categories={categories} tools={tools} />
+    </>
+  );
 }

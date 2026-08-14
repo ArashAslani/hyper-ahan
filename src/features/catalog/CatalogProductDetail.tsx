@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { CatalogReturnLink } from "@/features/catalog/CatalogReturnLink";
+import {
+  appendCatalogNavParam,
+  bindCatalogNavigationOwnership,
+  buildCleanedProductHref,
+  markCatalogNavigationCalculatorActivation,
+} from "@/lib/catalogNavigationContext";
 import { routes } from "@/lib/routes";
 import { SALE_MODE_LABELS } from "@/lib/catalogLabels";
 import {
@@ -130,7 +137,15 @@ export function CatalogProductDetail({
         engineeringHandoff?.openAtc)
     ) {
       cleanedQuery.current = true;
-      router.replace(routes.catalog.product(product.id), { scroll: false });
+      const liveHref = `${window.location.pathname}${window.location.search}`;
+      bindCatalogNavigationOwnership(liveHref);
+      router.replace(
+        buildCleanedProductHref(
+          product.id,
+          new URLSearchParams(window.location.search),
+        ),
+        { scroll: false },
+      );
     }
   }, [product.id, engineeringHandoff, router]);
 
@@ -198,9 +213,9 @@ export function CatalogProductDetail({
   return (
     <div className="pb-28">
       <div className="space-y-4 px-4 py-4">
-        <Link href={routes.catalog.root} className="text-sm text-accent">
+        <CatalogReturnLink className="text-sm text-accent">
           ← بازگشت به کاتالوگ
-        </Link>
+        </CatalogReturnLink>
 
         <div>
           <h1 className="text-xl font-bold text-text">{product.displayName}</h1>
@@ -220,6 +235,22 @@ export function CatalogProductDetail({
         {calculatorHref ? (
           <Link
             href={calculatorHref}
+            onClick={(event) => {
+              if (
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey ||
+                event.button !== 0
+              ) {
+                return;
+              }
+              event.preventDefault();
+              const nav = markCatalogNavigationCalculatorActivation();
+              router.push(
+                nav ? appendCatalogNavParam(calculatorHref, nav) : calculatorHref,
+              );
+            }}
             className="flex min-h-[var(--touch-min)] items-center justify-between rounded-[var(--radius-lg)] bg-surface px-4 py-3 text-sm shadow-[var(--shadow-soft)]"
           >
             <span className="font-medium text-text">محاسبه مقدار مورد نیاز</span>

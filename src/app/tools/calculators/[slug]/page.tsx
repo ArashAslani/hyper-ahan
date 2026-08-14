@@ -3,6 +3,7 @@ import Link from "next/link";
 import { DynamicToolForm } from "@/features/tools/DynamicToolForm";
 import { TrackToolVisit } from "@/features/catalog/TrackToolVisit";
 import { calculationToolService } from "@/services/calculationToolService";
+import { readCatalogNavParam } from "@/lib/catalogNavigationContext";
 import { routes } from "@/lib/routes";
 import type { Metadata } from "next";
 
@@ -10,7 +11,11 @@ export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ productId?: string; return?: string }>;
+  searchParams: Promise<{
+    productId?: string;
+    return?: string;
+    nav?: string | string[];
+  }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -55,6 +60,7 @@ export default async function ToolDetailPage({ params, searchParams }: PageProps
           tool={tool}
           productId={productId}
           returnPath={returnPath}
+          nav={readCatalogNavParam(sp.nav)}
         />
       </div>
     </div>

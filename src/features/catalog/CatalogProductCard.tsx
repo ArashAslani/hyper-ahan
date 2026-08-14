@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { routes } from "@/lib/routes";
 import { SALE_MODE_LABELS } from "@/lib/catalogLabels";
@@ -15,23 +15,62 @@ import type { CatalogProduct } from "@/types/catalog";
 type CatalogProductCardProps = {
   product: CatalogProduct;
   factoryName?: string;
+  productHref?: string;
+  onNavigateToProduct?: () => void;
+  /** Runs synchronously before the Quick Detail sheet and its scroll lock. */
+  onOpenQuickDetail?: () => void;
+  onNavigateToProductFromQuickDetail?: () => void;
+  /** Clears the pre-open snapshot when Quick Detail closes without a same-tab PDP. */
+  onAbandonQuickDetail?: () => void;
 };
+
+function isModifiedClick(event: {
+  metaKey: boolean;
+  ctrlKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
+  button: number;
+}): boolean {
+  return (
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    event.button !== 0
+  );
+}
 
 /** Catalog PLP card — commercial projection and purchase CTA from Backend contract. */
 export function CatalogProductCard({
   product,
   factoryName,
+  productHref,
+  onNavigateToProduct,
+  onOpenQuickDetail,
+  onNavigateToProductFromQuickDetail,
+  onAbandonQuickDetail,
 }: CatalogProductCardProps) {
   const [cartOpen, setCartOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
+  const quickPromotedRef = useRef(false);
   const purchasable = canDirectPurchase(product);
   const registrationLabel = product.registrationUnit.label.trim();
+  const href = productHref ?? routes.catalog.product(product.id);
+  const sheetOpen = quickOpen || cartOpen;
 
   return (
-    <article className="overflow-hidden rounded-[var(--radius-lg)] bg-surface shadow-[var(--shadow-card)] transition hover:-translate-y-0.5">
+    <article
+      className={`overflow-hidden rounded-[var(--radius-lg)] bg-surface shadow-[var(--shadow-card)]${
+        sheetOpen ? "" : " transition hover:-translate-y-0.5"
+      }`}
+    >
       <Link
-        href={routes.catalog.product(product.id)}
+        href={href}
         className="block p-4 pb-3"
+        onClick={(event) => {
+          if (isModifiedClick(event)) return;
+          onNavigateToProduct?.();
+        }}
       >
         <h3 className="text-base font-bold text-text">{product.displayName}</h3>
         {factoryName ? (
@@ -78,7 +117,11 @@ export function CatalogProductCard({
           type="button"
           variant="outline"
           className="flex-1"
-          onClick={() => setQuickOpen(true)}
+          onClick={() => {
+            quickPromotedRef.current = false;
+            onOpenQuickDetail?.();
+            setQuickOpen(true);
+          }}
         >
           جزئیات
         </Button>
@@ -86,13 +129,24 @@ export function CatalogProductCard({
 
       <CatalogProductQuickDetail
         isOpen={quickOpen}
-        onClose={() => setQuickOpen(false)}
+        onClose={() => {
+          setQuickOpen(false);
+          if (!quickPromotedRef.current) onAbandonQuickDetail?.();
+          quickPromotedRef.current = false;
+        }}
         product={product}
+        productHref={href}
+        onNavigateToProduct={() => {
+          quickPromotedRef.current = true;
+          (onNavigateToProductFromQuickDetail ?? onNavigateToProduct)?.();
+        }}
         canDirectPurchase={purchasable}
         onPurchase={
           purchasable
             ? () => {
                 setQuickOpen(false);
+                if (!quickPromotedRef.current) onAbandonQuickDetail?.();
+                quickPromotedRef.current = false;
                 setCartOpen(true);
               }
             : undefined

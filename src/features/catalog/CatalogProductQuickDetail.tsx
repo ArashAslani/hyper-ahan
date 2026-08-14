@@ -17,6 +17,8 @@ type CatalogProductQuickDetailProps = {
   product: CatalogProduct;
   canDirectPurchase: boolean;
   onPurchase?: () => void;
+  productHref?: string;
+  onNavigateToProduct?: () => void;
 };
 
 /**
@@ -30,6 +32,8 @@ export function CatalogProductQuickDetail({
   product,
   canDirectPurchase,
   onPurchase,
+  productHref,
+  onNavigateToProduct,
 }: CatalogProductQuickDetailProps) {
   const locale = resolveStorefrontLocale();
   const units = product.orderUnits;
@@ -97,9 +101,22 @@ export function CatalogProductQuickDetail({
             </a>
           )}
           <Link
-            href={routes.catalog.product(product.id)}
+            href={productHref ?? routes.catalog.product(product.id)}
             className="block"
-            onClick={onClose}
+            onClick={(event) => {
+              if (
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey ||
+                event.button !== 0
+              ) {
+                onClose();
+                return;
+              }
+              onNavigateToProduct?.();
+              onClose();
+            }}
           >
             <Button type="button" variant="ghost" fullWidth>
               مشاهده صفحه محصول

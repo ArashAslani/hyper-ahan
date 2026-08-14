@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CatalogPlpErrorActions } from "@/features/catalog/CatalogPlpErrorActions";
 import { CatalogProductList } from "@/features/catalog/CatalogProductList";
+import { RestoreCatalogPlpScroll } from "@/features/catalog/RestoreCatalogPlpScroll";
 import { TrackCategoryVisit } from "@/features/catalog/TrackCategoryVisit";
 import { catalogService } from "@/services/catalogService";
 import {
@@ -25,8 +26,11 @@ export default async function CatalogCategoryPage({
 }: PageProps) {
   const [{ id }, rawSearchParams] = await Promise.all([params, searchParams]);
   const pathname = routes.catalog.category(id);
-  const urlState = decodeCatalogPlpUrl(toUrlSearchParams(rawSearchParams));
+  const requestSearch = toUrlSearchParams(rawSearchParams);
+  const urlState = decodeCatalogPlpUrl(requestSearch);
   const query = toCatalogPlpQuery(id, urlState);
+  const requestQuery = requestSearch.toString();
+  const categoryHref = requestQuery ? `${pathname}?${requestQuery}` : pathname;
 
   const [category, plpOutcome, factories] = await Promise.all([
     catalogService.getCategoryById(id),
@@ -43,6 +47,7 @@ export default async function CatalogCategoryPage({
 
   return (
     <div>
+      <RestoreCatalogPlpScroll href={categoryHref} />
       <TrackCategoryVisit id={category.id} name={category.name} />
       {children.length > 0 ? (
         <div className="border-b border-border px-4 py-3">
@@ -67,6 +72,7 @@ export default async function CatalogCategoryPage({
           factories={factories}
           urlState={urlState}
           pathname={pathname}
+          categoryHref={categoryHref}
           emptyDescription="محصولی با این فیلترها در این دسته نیست."
         />
       ) : (
