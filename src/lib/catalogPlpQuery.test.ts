@@ -6,6 +6,7 @@ import {
 } from "./catalogPlpMapping.ts";
 import {
   buildCatalogPlpHref,
+  buildCatalogPlpContinuousHref,
   CATALOG_PLP_DEFAULT_SORT,
   CATALOG_PLP_PAGE_SIZE,
   decodeCatalogPlpUrl,
@@ -108,6 +109,10 @@ test("filter and sort transitions can reset page without changing values", () =>
       ...state,
       page: 1,
     }),
+    `/catalog/categories/category?sort=newest&factory=${factoryA}`,
+  );
+  assert.equal(
+    buildCatalogPlpContinuousHref("/catalog/categories/category", state),
     `/catalog/categories/category?sort=newest&factory=${factoryA}`,
   );
 });

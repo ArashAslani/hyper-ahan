@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { CatalogPlpErrorActions } from "@/features/catalog/CatalogPlpErrorActions";
 import { CatalogProductList } from "@/features/catalog/CatalogProductList";
@@ -6,7 +6,9 @@ import { RestoreCatalogPlpScroll } from "@/features/catalog/RestoreCatalogPlpScr
 import { TrackCategoryVisit } from "@/features/catalog/TrackCategoryVisit";
 import { catalogService } from "@/services/catalogService";
 import {
+  buildCatalogPlpContinuousHref,
   decodeCatalogPlpUrl,
+  resetCatalogPlpPage,
   toCatalogPlpQuery,
   toUrlSearchParams,
   type CatalogPlpSearchParams,
@@ -28,9 +30,13 @@ export default async function CatalogCategoryPage({
   const pathname = routes.catalog.category(id);
   const requestSearch = toUrlSearchParams(rawSearchParams);
   const urlState = decodeCatalogPlpUrl(requestSearch);
-  const query = toCatalogPlpQuery(id, urlState);
-  const requestQuery = requestSearch.toString();
-  const categoryHref = requestQuery ? `${pathname}?${requestQuery}` : pathname;
+  const continuousHref = buildCatalogPlpContinuousHref(pathname, urlState);
+  if (urlState.page > 1) {
+    redirect(continuousHref);
+  }
+  const continuousState = resetCatalogPlpPage(urlState);
+  const query = toCatalogPlpQuery(id, continuousState);
+  const categoryHref = continuousHref;
 
   const [category, plpOutcome, factories] = await Promise.all([
     catalogService.getCategoryById(id),
@@ -70,7 +76,7 @@ export default async function CatalogCategoryPage({
           title={category.name}
           result={plpOutcome.result}
           factories={factories}
-          urlState={urlState}
+          urlState={continuousState}
           pathname={pathname}
           categoryHref={categoryHref}
           emptyDescription="محصولی با این فیلترها در این دسته نیست."

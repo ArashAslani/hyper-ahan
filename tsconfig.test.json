@@ -10,11 +10,13 @@
     "src/lib/catalogUnitLabelMapper.test.ts",
     "src/lib/catalogPlpQuery.test.ts",
     "src/lib/catalogNavigationContext.test.ts",
+    "src/lib/catalogPlpContinuous.test.ts",
     "src/lib/importantSpecifications.ts",
     "src/lib/catalogUnitMapping.ts",
     "src/lib/catalogPlpMapping.ts",
     "src/lib/catalogPlpQuery.ts",
-    "src/lib/catalogNavigationContext.ts"
+    "src/lib/catalogNavigationContext.ts",
+    "src/lib/catalogPlpContinuous.ts"
   ],
   "exclude": ["node_modules"]
 }

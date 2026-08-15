@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSliders } from "@fortawesome/free-solid-svg-icons";
 import { orderCatalogPlpControlFacets } from "@/lib/catalogPlpMapping";
 import {
-  buildCatalogPlpHref,
+  buildCatalogPlpContinuousHref,
   resetCatalogPlpPage,
   type CatalogPlpUrlState,
 } from "@/lib/catalogPlpQuery";
@@ -34,6 +33,8 @@ type CatalogPlpControlsProps = {
   productPage: CatalogPlpProductPage;
   urlState: CatalogPlpUrlState;
   pathname: string;
+  loadedCount?: number;
+  loadingMore?: boolean;
 };
 
 function draftFromState(state: CatalogPlpUrlState): ControlsDraft {
@@ -87,6 +88,8 @@ export function CatalogPlpControls({
   productPage,
   urlState,
   pathname,
+  loadedCount,
+  loadingMore = false,
 }: CatalogPlpControlsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -111,6 +114,11 @@ export function CatalogPlpControls({
     availableSorts.length > 1;
   const orderedFacets = orderCatalogPlpControlFacets(metadata);
   const activeCount = appliedFilterCount(urlState);
+  const shownCount = loadedCount ?? productPage.items.length;
+  const activeSortLabel =
+    availableSorts.find((option) => option.key === urlState.sort)?.label ??
+    availableSorts.find((option) => option.isDefault)?.label ??
+    "مرتب‌سازی";
 
   function openSheet() {
     setDraft(draftFromState(urlState));
@@ -163,7 +171,7 @@ export function CatalogPlpControls({
         : [];
     });
 
-    const href = buildCatalogPlpHref(
+    const href = buildCatalogPlpContinuousHref(
       pathname,
       resetCatalogPlpPage({
         page: urlState.page,
@@ -185,15 +193,44 @@ export function CatalogPlpControls({
 
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-        <p className="text-text-muted" aria-live="polite">
-          {productPage.totalCount.toLocaleString("fa-IR")} محصول
-          {activeCount > 0
-            ? ` · ${activeCount.toLocaleString("fa-IR")} فیلتر فعال`
-            : ""}
-        </p>
-        {isPending ? (
-          <span className="text-xs text-text-muted">در حال به‌روزرسانی...</span>
+      <div className="sticky top-0 z-20 -mx-4 mb-3 border-b border-border/80 bg-bg/95 px-4 py-2 backdrop-blur-sm">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+          <p className="text-text-muted" aria-live="polite">
+            {shownCount.toLocaleString("fa-IR")} از{" "}
+            {productPage.totalCount.toLocaleString("fa-IR")} محصول
+            {activeCount > 0
+              ? ` · ${activeCount.toLocaleString("fa-IR")} فیلتر فعال`
+              : ""}
+          </p>
+          {isPending || loadingMore ? (
+            <span className="text-xs text-text-muted">در حال به‌روزرسانی...</span>
+          ) : null}
+        </div>
+        {hasControls ? (
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            <button
+              type="button"
+              onClick={openSheet}
+              className="shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text shadow-[var(--shadow-soft)]"
+            >
+              {activeSortLabel}
+            </button>
+            <button
+              type="button"
+              onClick={openSheet}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium shadow-[var(--shadow-soft)] ${
+                activeCount > 0
+                  ? "border-accent/40 bg-accent/10 text-accent"
+                  : "border-border bg-surface text-text"
+              }`}
+              aria-label="فیلتر و مرتب‌سازی محصولات"
+            >
+              فیلترها
+              {activeCount > 0
+                ? ` (${activeCount.toLocaleString("fa-IR")})`
+                : ""}
+            </button>
+          </div>
         ) : null}
       </div>
 
@@ -452,44 +489,6 @@ export function CatalogPlpControls({
           </BottomSheet>
         </>
       ) : null}
-
-      {(productPage.hasPreviousPage || productPage.hasNextPage) && (
-        <nav
-          aria-label="صفحه‌بندی محصولات"
-          className="mt-5 flex items-center justify-between gap-2"
-        >
-          {productPage.hasPreviousPage ? (
-            <Link
-              href={buildCatalogPlpHref(pathname, {
-                ...urlState,
-                page: Math.max(1, productPage.page - 1),
-              })}
-              className="inline-flex min-h-[var(--touch-min)] items-center rounded-[var(--radius-md)] border border-border px-4 text-sm font-medium text-text"
-            >
-              قبلی
-            </Link>
-          ) : (
-            <span />
-          )}
-          <span className="text-sm text-text-muted">
-            صفحه {productPage.page.toLocaleString("fa-IR")} از{" "}
-            {productPage.totalPages.toLocaleString("fa-IR")}
-          </span>
-          {productPage.hasNextPage ? (
-            <Link
-              href={buildCatalogPlpHref(pathname, {
-                ...urlState,
-                page: productPage.page + 1,
-              })}
-              className="inline-flex min-h-[var(--touch-min)] items-center rounded-[var(--radius-md)] border border-border px-4 text-sm font-medium text-text"
-            >
-              بعدی
-            </Link>
-          ) : (
-            <span />
-          )}
-        </nav>
-      )}
     </>
   );
 }

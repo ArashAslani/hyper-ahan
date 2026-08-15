@@ -222,6 +222,17 @@ export function buildCatalogPlpHref(
   return query ? `${pathname}?${query}` : pathname;
 }
 
+/**
+ * Continuous browsing owns only filter/sort URL state. Page accumulation is
+ * client-side, so the customer-facing href never carries `page`.
+ */
+export function buildCatalogPlpContinuousHref(
+  pathname: string,
+  state: CatalogPlpUrlState,
+): string {
+  return buildCatalogPlpHref(pathname, resetCatalogPlpPage(state));
+}
+
 export function toCatalogPlpQuery(
   categoryId: string,
   state: CatalogPlpUrlState,
