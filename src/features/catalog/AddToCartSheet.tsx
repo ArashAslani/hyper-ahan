@@ -15,10 +15,7 @@ import { BottomSheet } from "@/shared/ui/BottomSheet";
 import { Button } from "@/shared/ui/Button";
 import { useToast } from "@/shared/ui/Toast";
 import type { CatalogOrderUnit, CatalogProduct, FinalPrice } from "@/types/catalog";
-import {
-  CART_QUOTE_TTL_MS,
-  type QuoteCartItem,
-} from "@/types/quoteCart";
+import { type QuoteCartItem } from "@/types/quoteCart";
 
 /** Mid-sheet live-quote freshness window (UX canvas: 60–120s). */
 const SHEET_QUOTE_STALE_MS = 120 * 1000;
@@ -263,7 +260,6 @@ function AddToCartSheetBody({
     if (!canAdd || !selectedUnit || quantity == null || !displayQuote) return;
 
     const quotedAt = new Date().toISOString();
-    const expiresAt = new Date(Date.now() + CART_QUOTE_TTL_MS).toISOString();
 
     const item: QuoteCartItem = {
       productId: product.id,
@@ -273,7 +269,7 @@ function AddToCartSheetBody({
       quantity,
       quote: displayQuote,
       quotedAt,
-      expiresAt,
+      expiresAt: null,
       // Prefer engineering audit when present; else Pricing priceId correlation.
       calculationRef: eng
         ? formatEngineeringAuditRef(eng)

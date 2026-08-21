@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/lib/routes";
 import { useCart } from "@/providers/CartProvider";
 import {
   QUOTE_CART_LINE_STATE_LABEL,
   cartHasPricedCheckoutBlockers,
-  formatQuoteValidityLabel,
   getQuoteCartEngineeringRef,
   getQuoteCartLineState,
   parseEngineeringCartRef,
@@ -29,12 +27,6 @@ function formatLineMoney(value: number | null | undefined): string {
 export function CheckoutPageView() {
   const { items, getApproximateTotal } = useCart();
   const router = useRouter();
-  const [nowMs, setNowMs] = useState(() => Date.now());
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNowMs(Date.now()), 15_000);
-    return () => window.clearInterval(id);
-  }, []);
 
   if (items.length === 0) {
     return (
@@ -48,7 +40,7 @@ export function CheckoutPageView() {
   }
 
   const estimate = getApproximateTotal();
-  const checkoutBlocked = cartHasPricedCheckoutBlockers(items, nowMs);
+  const checkoutBlocked = cartHasPricedCheckoutBlockers(items);
 
   if (checkoutBlocked) {
     return (
@@ -59,13 +51,12 @@ export function CheckoutPageView() {
             بررسی با استعلام فعلی ممکن نیست
           </p>
           <p className="mt-2 text-sm text-text-muted">
-            یک یا چند قلم سبد منقضی، نامعتبر یا غیرقابل فروش است. به سبد
-            برگردید و «استعلام مجدد قیمت» بزنید. ثبت سفارش تا اتصال Ordering
-            فعال نیست.
+            یک یا چند قلم سبد نامعتبر یا غیرقابل فروش است. به سبد برگردید و
+            «استعلام مجدد قیمت» بزنید. ثبت سفارش تا اتصال Ordering فعال نیست.
           </p>
           <ul className="mt-3 space-y-1 text-sm text-text">
             {items.map((item) => {
-              const state = getQuoteCartLineState(item, nowMs);
+              const state = getQuoteCartLineState(item);
               if (state === "quoted") return null;
               return (
                 <li key={quoteCartLineKey(item)}>
@@ -99,8 +90,8 @@ export function CheckoutPageView() {
           بک‌اند Ordering فعال نیست.
         </p>
         <p className="mt-1 text-xs text-text-muted">
-          اعتبار موقت هر قلم حدود ۳۰ دقیقه است؛ برای قطعی شدن با کارشناس هماهنگ
-          کنید.
+          مبالغ نمایش‌داده‌شده استعلام Backend/Pricing هستند، نه قیمت قفل‌شده.
+          برای قطعی شدن با کارشناس هماهنگ کنید.
         </p>
       </div>
 
@@ -111,7 +102,6 @@ export function CheckoutPageView() {
             const eng = parseEngineeringCartRef(
               getQuoteCartEngineeringRef(item),
             );
-            const validity = formatQuoteValidityLabel(item.expiresAt, nowMs);
             return (
               <li
                 key={quoteCartLineKey(item)}
@@ -128,9 +118,6 @@ export function CheckoutPageView() {
                     {formatLineMoney(item.quote?.finalPrice)}
                   </span>
                 </div>
-                {validity ? (
-                  <p className="mt-0.5 text-xs text-text-muted">{validity}</p>
-                ) : null}
                 {eng ? (
                   <p className="mt-0.5 text-xs text-accent">
                     از ماشین‌حساب ·{" "}

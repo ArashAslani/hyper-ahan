@@ -4,19 +4,13 @@ import type { FinalPrice } from "@/types/catalog";
 export type QuoteCartQuoteSnapshot = FinalPrice;
 
 /**
- * Provisional QuoteCart line TTL (until Ordering expiresAt exists).
- * Same window used when writing quotes from Add-to-Cart and re-quote.
- */
-export const CART_QUOTE_TTL_MS = 30 * 60 * 1000;
-
-/**
  * Explicit per-line quote lifecycle for cart / checkout gates.
  * Derived — not persisted as a separate field.
+ * `expiresAt` on a line is ignored for state (no client price hold).
  */
 export type QuoteCartLineState =
   | "quoted"
   | "stale_qty"
-  | "expired"
   | "unsellable"
   | "unavailable"
   | "error";
@@ -38,6 +32,7 @@ export type QuoteCartItem = {
    */
   quote: QuoteCartQuoteSnapshot | null;
   quotedAt: string | null;
+  /** Retained for persisted JSON shape; never a price-hold clock. Writers set null. */
   expiresAt: string | null;
   /**
    * Optional audit / correlation ref.
@@ -66,32 +61,22 @@ export function quoteCartLineKey(key: QuoteCartLineKey): string {
   return `${key.productId}::${key.orderUnitId}`;
 }
 
-export function isQuoteCartLineExpired(
-  item: Pick<QuoteCartItem, "expiresAt">,
-  nowMs = Date.now(),
-): boolean {
-  if (!item.expiresAt) return false;
-  return new Date(item.expiresAt).getTime() < nowMs;
-}
-
 /**
- * Derive line quote state from the stored snapshot + clock.
+ * Derive line quote state from the stored snapshot.
+ * `expiresAt` / clock are ignored — not a cart price lock.
  *
- * - `expiresAt` in the past → `expired` (quote kept; never auto-removed)
  * - `quote === null` → `stale_qty` (qty change cleared money)
  * - quote present but `!isSellable` → `unsellable`
  * - sellable but no usable `finalPrice` → `unavailable`
- * - fresh sellable money → `quoted`
+ * - sellable money → `quoted`
  *
  * Transient `error` is applied by the UI after a failed re-quote (see overlay).
  */
 export function getQuoteCartLineState(
   item: Pick<QuoteCartItem, "quote" | "expiresAt">,
-  nowMs = Date.now(),
+  _nowMs = Date.now(),
 ): Exclude<QuoteCartLineState, "error"> {
-  if (isQuoteCartLineExpired(item, nowMs)) {
-    return "expired";
-  }
+  void _nowMs;
   if (item.quote == null) {
     return "stale_qty";
   }
@@ -121,14 +106,13 @@ export function quoteCartLineNeedsRequote(
 ): boolean {
   return (
     state === "stale_qty" ||
-    state === "expired" ||
     state === "error" ||
     state === "unsellable" ||
     state === "unavailable"
   );
 }
 
-/** Priced checkout requires every line to be a fresh sellable quote. */
+/** Priced checkout requires every line to be a sellable quote snapshot. */
 export function quoteCartLineBlocksPricedCheckout(
   state: QuoteCartLineState,
 ): boolean {
@@ -148,7 +132,6 @@ export const QUOTE_CART_LINE_STATE_LABEL: Record<QuoteCartLineState, string> =
   {
     quoted: "قیمت معتبر (تقریبی)",
     stale_qty: "مقدار تغییر کرده — نیاز به استعلام مجدد",
-    expired: "منقضی — استعلام مجدد لازم است",
     unsellable: "قابل فروش نیست — با کارشناس هماهنگ کنید",
     unavailable: "موجود / قابل قیمت‌گذاری نیست",
     error: "خطا در استعلام قیمت — دوباره تلاش کنید",
@@ -181,31 +164,4 @@ export function parseEngineeringCartRef(
   const quantity = Number(qtyStr);
   if (!Number.isFinite(quantity)) return null;
   return { quantity, unit };
-}
-
-/** Remaining ms until line expiresAt; null if no expiry set. */
-export function getQuoteRemainingMs(
-  expiresAt: string | null | undefined,
-  nowMs = Date.now(),
-): number | null {
-  if (!expiresAt) return null;
-  return new Date(expiresAt).getTime() - nowMs;
-}
-
-/**
- * Human label for provisional quote hold on a quoted line.
- * e.g. «معتبر تا ۱۲:۳۰ (حدود ۱۸ دقیقه)»
- */
-export function formatQuoteValidityLabel(
-  expiresAt: string | null | undefined,
-  nowMs = Date.now(),
-): string | null {
-  const remaining = getQuoteRemainingMs(expiresAt, nowMs);
-  if (remaining == null || remaining <= 0 || !expiresAt) return null;
-  const minutes = Math.max(1, Math.ceil(remaining / 60_000));
-  const until = new Date(expiresAt).toLocaleTimeString("fa-IR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `معتبر تا ${until} (حدود ${minutes} دقیقه)`;
 }

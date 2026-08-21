@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { routes } from "@/lib/routes";
@@ -8,7 +8,6 @@ import { useCart } from "@/providers/CartProvider";
 import {
   QUOTE_CART_LINE_STATE_LABEL,
   cartHasPricedCheckoutBlockers,
-  formatQuoteValidityLabel,
   getQuoteCartEngineeringRef,
   parseEngineeringCartRef,
   quoteCartLineKey,
@@ -37,15 +36,13 @@ function LineStateBadge({ state }: { state: QuoteCartLineState }) {
   const tone =
     state === "quoted"
       ? "bg-success/10 text-success"
-      : state === "expired"
-        ? "bg-danger/10 text-danger"
-        : state === "stale_qty"
-          ? "bg-highlight/20 text-text"
-          : state === "error"
+      : state === "stale_qty"
+        ? "bg-highlight/20 text-text"
+        : state === "error"
+          ? "bg-danger/10 text-danger"
+          : state === "unsellable"
             ? "bg-danger/10 text-danger"
-            : state === "unsellable"
-              ? "bg-danger/10 text-danger"
-              : "bg-highlight/15 text-text";
+            : "bg-highlight/15 text-text";
 
   return (
     <span
@@ -92,16 +89,10 @@ export function CartPageView() {
     requoteAllNeedingRefresh,
   } = useCart();
 
-  const [nowMs, setNowMs] = useState(() => Date.now());
   const [lineErrors, setLineErrors] = useState<Record<string, boolean>>({});
   const [pendingKeys, setPendingKeys] = useState<Record<string, boolean>>({});
   const [bulkPending, setBulkPending] = useState(false);
   const [driftByKey, setDriftByKey] = useState<Record<string, PriceDrift>>({});
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNowMs(Date.now()), 15_000);
-    return () => window.clearInterval(id);
-  }, []);
 
   const lineStates = useMemo(() => {
     const map = new Map<string, QuoteCartLineState>();
@@ -111,12 +102,11 @@ export function CartPageView() {
         key,
         resolveQuoteCartLineState(item, {
           hasError: Boolean(lineErrors[key]),
-          nowMs,
         }),
       );
     }
     return map;
-  }, [items, lineErrors, nowMs]);
+  }, [items, lineErrors]);
 
   const needsRefreshCount = useMemo(() => {
     let count = 0;
@@ -126,7 +116,7 @@ export function CartPageView() {
     return count;
   }, [lineStates]);
 
-  const checkoutBlocked = cartHasPricedCheckoutBlockers(items, nowMs);
+  const checkoutBlocked = cartHasPricedCheckoutBlockers(items);
 
   const setPending = (key: string, pending: boolean) => {
     setPendingKeys((prev) => {
@@ -228,8 +218,8 @@ export function CartPageView() {
       </div>
 
       <p className="mb-4 text-xs text-text-muted">
-        این سبد «استعلام موقت» است (حدود ۳۰ دقیقه اعتبار). سفارش قطعی تا اتصال
-        Ordering ثبت نمی‌شود.
+        مبالغ این سبد استعلام نمایشی از Backend/Pricing هستند، نه قیمت قفل‌شده.
+        سفارش قطعی تا اتصال Ordering ثبت نمی‌شود.
       </p>
 
       {checkoutBlocked ? (
@@ -265,11 +255,6 @@ export function CartPageView() {
               : state !== "quoted" && item.quote?.finalPrice != null
                 ? item.quote.finalPrice
                 : null;
-          const validity =
-            state === "quoted"
-              ? formatQuoteValidityLabel(item.expiresAt, nowMs)
-              : null;
-
           return (
             <li
               key={key}
@@ -289,10 +274,6 @@ export function CartPageView() {
                   <p className="mt-1 font-bold text-accent">
                     {formatLineMoney(lineTotal)}
                   </p>
-                ) : null}
-
-                {validity ? (
-                  <p className="mt-0.5 text-xs text-text-muted">{validity}</p>
                 ) : null}
 
                 {struckPrice != null ? (

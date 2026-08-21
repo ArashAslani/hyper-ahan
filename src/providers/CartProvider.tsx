@@ -13,7 +13,6 @@ import { localQuoteCartAdapter } from "@/features/cart/LocalQuoteCartAdapter";
 import type { CartIntentionPort } from "@/features/cart/CartIntentionPort";
 import { pricingService } from "@/services/pricingService";
 import {
-  CART_QUOTE_TTL_MS,
   getQuoteCartEngineeringRef,
   getQuoteCartLineState,
   quoteCartLineNeedsRequote,
@@ -44,7 +43,7 @@ type CartContextValue = {
     quantity: number,
   ) => void;
   clearCart: () => void;
-  /** Estimate only: sum of non-expired quoted finalPrices. */
+  /** Estimate only: sum of quoted (sellable) finalPrices — not a hold clock. */
   getApproximateTotal: () => number;
   getTotalItems: () => number;
   /**
@@ -80,7 +79,6 @@ function applyCalculateResult(
   quote: QuoteCartQuoteSnapshot,
 ): QuoteCartItem {
   const quotedAt = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + CART_QUOTE_TTL_MS).toISOString();
   // Preserve eng audit across re-quote; priceId is Pricing correlation only.
   const engineeringRef = getQuoteCartEngineeringRef(item);
   const priceId = quote.priceId ?? null;
@@ -97,7 +95,7 @@ function applyCalculateResult(
     quantity: item.quantity,
     quote,
     quotedAt,
-    expiresAt,
+    expiresAt: null,
     calculationRef,
     engineeringRef,
     // Fresh quote supersedes struck snapshot.
